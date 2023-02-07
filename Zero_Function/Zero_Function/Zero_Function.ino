@@ -2,12 +2,14 @@
 const int limitPin = 8;
 const int dirPin = 2;
 const int stepPin = 3;
+const int onPin = 5;
+const int dircontrolPin = 7;
 
 int dir = 0; //direction status
 int on = 0;  //on/off status
 int limit = 0; //motor limit status
 int offset = 512; //offset movement in steps
-
+                  //128 steps = 1mm
 void setup() 
 {
   //Declare pins as Inputs/Outputs
@@ -25,10 +27,10 @@ void loop()
   dir = digitalRead(dircontrolPin);
   limit = digitalRead(limitPin);
 
-  //motor movement loop
+  //move motor down until limit switch activation
   while(limit == LOW)
   { 
-    digitalWrite(dirPin = HIGH);
+    digitalWrite(dirPin, HIGH);
       
     //step motor once
     digitalWrite(stepPin, HIGH);
@@ -39,9 +41,10 @@ void loop()
     limit = digitalRead(limitPin);
   }
 
+  //move motor vertically offset distance
   for (int i = 0; i < offset; i++)
   {
-    digitalWrite(dirpin = LOW);
+    digitalWrite(dirPin, LOW);
     
     //step motor once
     digitalWrite(stepPin, HIGH);
@@ -50,9 +53,10 @@ void loop()
     delayMicroseconds(400);
   }
 
+  //move motor slowly to zero point
   while(limit == LOW)
   { 
-    digitalWrite(dirPin = HIGH);
+    digitalWrite(dirPin, HIGH);
       
     //step motor once
     digitalWrite(stepPin, HIGH);
