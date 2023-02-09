@@ -1,15 +1,20 @@
-//Define pin connections and file variables
-const int limitPin = 8;
-const int dirPin = 2;
-const int stepPin = 3;
-const int onPin = 5;
-const int dircontrolPin = 7;
+//Find zero point on z gantry
 
-int dir = 0; //direction status
-int on = 0;  //on/off status
-int limit = 0; //motor limit status
-int offset = 512; //offset movement in steps
-                  //128 steps = 1mm
+//Define pin connections and file variables
+const int dirPin = 2;         //driver direction control
+const int stepPin = 3;        //driver step control
+const int onPin = 5;          //driver on/off input
+const int dircontrolPin = 7;  //driver direction input
+const int limitPin = 8;       //z = 0 limit switch
+
+int dir = 0;    //direction status
+int on = 0;     //on/off status
+int limit = 0;  //motor limit status
+
+
+const int zconv = 128;  //64 steps per mm
+int offset = 2;         //offset movement in mm
+
 void setup() 
 {
   //Declare pins as Inputs/Outputs
@@ -42,7 +47,7 @@ void loop()
   }
 
   //move motor vertically offset distance
-  for (int i = 0; i < offset; i++)
+  for (int i = 0; i < offset * zconv; i++)
   {
     digitalWrite(dirPin, LOW);
     
