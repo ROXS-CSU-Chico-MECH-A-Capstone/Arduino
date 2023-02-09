@@ -1,3 +1,5 @@
+//Manually control z gantry with physical buttons
+
 // Define pin connections and file variables
 const int onPin = 5;         //stepping on/off input pin
 const int dircontrolPin = 7; //dirction input pin
