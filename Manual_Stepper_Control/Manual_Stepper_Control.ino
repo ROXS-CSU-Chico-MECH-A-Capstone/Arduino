@@ -49,5 +49,5 @@ void loop()
       dir = digitalRead(dircontrolPin);
       on = digitalRead(onPin);
     }
-  }       
+  }
 }
