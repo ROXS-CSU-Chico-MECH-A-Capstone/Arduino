@@ -6,10 +6,12 @@ const int stepPin = 3;        //driver step control
 const int onPin = 5;          //driver on/off input
 const int dircontrolPin = 7;  //driver direction input
 const int limitPin = 8;       //z = 0 limit switch
+const int runPin = 6;         //run zero function
 
 int dir = 0;    //direction status
 int on = 0;     //on/off status
 int limit = 0;  //motor limit status
+int hasRun = 0; //if function has been run already = 0;
 
 
 const int zconv = 128;  //64 steps per mm
@@ -23,10 +25,16 @@ void setup()
   pinMode(onPin, INPUT);
   pinMode(dircontrolPin, INPUT);
   pinMode(limitPin, INPUT);
+  pinmode(runPin, INPUT);
 }
 
 void loop() 
 {
+  while (hasRun == 0)
+  {
+    hasRun = digitalRead(runPin);
+  }
+
   //read input pin values
   on = digitalRead(onPin);
   dir = digitalRead(dircontrolPin);
@@ -71,4 +79,5 @@ void loop()
 
     limit = digitalRead(limitPin);
   }
+  hasRun = 0;
 }
