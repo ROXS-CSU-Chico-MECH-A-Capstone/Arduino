@@ -14,8 +14,9 @@ int limit = 0;  //motor limit status
 int hasRun = 0; //if function has been run already = 0;
 
 
-const int zconv = 128;  //64 steps per mm
-int offset = 2;         //offset movement in mm
+const int zconv = 200/4;  //n steps per n mm
+int offset = 3;           //offset movement in mm
+int zmax = 463;           //final height
 
 void setup() 
 {
@@ -25,7 +26,7 @@ void setup()
   pinMode(onPin, INPUT);
   pinMode(dircontrolPin, INPUT);
   pinMode(limitPin, INPUT);
-  pinmode(runPin, INPUT);
+  pinMode(runPin, INPUT);
 }
 
 void loop() 
@@ -43,7 +44,7 @@ void loop()
   //move motor down until limit switch activation
   while(limit == LOW)
   { 
-    digitalWrite(dirPin, HIGH);
+    digitalWrite(dirPin, LOW);
       
     //step motor once
     digitalWrite(stepPin, HIGH);
@@ -53,11 +54,13 @@ void loop()
 
     limit = digitalRead(limitPin);
   }
+  
+  delay(250);
 
   //move motor vertically offset distance
   for (int i = 0; i < offset * zconv; i++)
   {
-    digitalWrite(dirPin, LOW);
+    digitalWrite(dirPin, HIGH);
     
     //step motor once
     digitalWrite(stepPin, HIGH);
@@ -66,18 +69,35 @@ void loop()
     delayMicroseconds(400);
   }
 
+  limit = digitalRead(limitPin);
+
   //move motor slowly to zero point
   while(limit == LOW)
   { 
-    digitalWrite(dirPin, HIGH);
+    digitalWrite(dirPin, LOW);
       
     //step motor once
     digitalWrite(stepPin, HIGH);
-    delayMicroseconds(5000);
+    delayMicroseconds(4000);
     digitalWrite(stepPin, LOW);
-    delayMicroseconds(5000);
+    delayMicroseconds(4000);
 
     limit = digitalRead(limitPin);
   }
+
+  delay(1000);
+
+  //move motor vertically offset distance
+  for (int i = 0; i < zmax * zconv; i++)
+  {
+    digitalWrite(dirPin, HIGH);
+    
+    //step motor once
+    digitalWrite(stepPin, HIGH);
+    delayMicroseconds(400);
+    digitalWrite(stepPin, LOW);
+    delayMicroseconds(400);
+  }
+
   hasRun = 0;
 }
