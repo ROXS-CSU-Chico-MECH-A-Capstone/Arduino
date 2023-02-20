@@ -8,22 +8,22 @@ const int dircontrolPin = 7;  //driver direction input
 const int limitPin = 8;       //z = 0 limit switch
 const int runPin = 6;         //run zero function
 
-int dir = 0;    //direction status
-int on = 0;     //on/off status
-int limit = 0;  //motor limit status
-int runZero = 0;
-int hasRun = 1; //if function has been run already = 0;
+int dir = 0;     //direction status
+int on = 0;      //on/off status
+int limit = 0;   //limit switch status
+int runZero = 0; //run zero function
+int hasRun = 0;  //if function has been run already = 0;
 
 
-const int zconv = 200/8;  //n steps per n mm
+const int zconv = 200/8;  //steps/rev per mm pitch
 int offset = 3;           //offset movement in mm
 int zmax = 463;           //final height
 
 void setup() 
 {
   //Declare pins as Inputs/Outputs
-  pinMode(stepPin, OUTPUT);
   pinMode(dirPin, OUTPUT);
+  pinMode(stepPin, OUTPUT);
   pinMode(onPin, INPUT);
   pinMode(dircontrolPin, INPUT);
   pinMode(limitPin, INPUT);
@@ -33,6 +33,7 @@ void setup()
 void loop() 
 {
   runZero = digitalRead(runPin);
+  hasRun = 0;
 
   while (runZero == 0)
   { 
@@ -41,7 +42,6 @@ void loop()
     {
       digitalWrite(dirPin, HIGH); //set motor direction up         
     }
-    
     else
     {
       digitalWrite(dirPin, LOW);  //set motor direction down
@@ -59,10 +59,7 @@ void loop()
     runZero = digitalRead(runPin);
   }
 
-  //read input pin values
-  on = digitalRead(onPin);
-  dir = digitalRead(dircontrolPin);
-  limit = digitalRead(limitPin);
+  limit = digitalRead(limitPin); //check limit switch status
 
   while(hasRun = 0)
   {
@@ -123,8 +120,6 @@ void loop()
       digitalWrite(stepPin, LOW);
       delayMicroseconds(400);
     }
-
     hasRun = 1;
   }
-
 }
