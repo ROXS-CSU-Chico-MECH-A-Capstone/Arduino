@@ -63,9 +63,21 @@ void setup()
 
 void loop() 
 {
-/*
-  zeroZ(zeroDelay);
-  moveZ(zCurrent, gotoZ, delay);
-  jogZ(zConv, zCurrent, delay);
-*/
+  if (readString == zero)
+  {
+    zeroZ(zeroDelay);  //run zeroing function
+  }
+  else if (readString == move)
+  {
+    while (readString != exit)
+    {
+      //check for z coordinate
+      moveZ(zCurrent, gotoZ, delay);
+      //read readstring
+    }
+  }
+  else if (readString == jog)
+  {
+    jogZ(zConv, zCurrent, delay);
+  }
 }
