@@ -41,6 +41,4 @@ while (exitJog == LOW)
       on = digitalRead(onPin);
     }
   }
-
-  ethernet.Read(exitJog);
 }

@@ -48,18 +48,3 @@ while(limit == LOW)
 
   limit = digitalRead(limitPin);
 }
-
-delay(1000);
-/*
-//move motor vertically to zmax
-for (int i = 0; i < zmax * zconv; i++)
-{
-  digitalWrite(dirPin, HIGH);
-
-  //step motor once
-  digitalWrite(stepPin, HIGH);
-  delayMicroseconds(400);
-  digitalWrite(stepPin, LOW);
-  delayMicroseconds(400);
-}
-*/
