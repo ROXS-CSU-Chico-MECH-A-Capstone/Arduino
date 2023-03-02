@@ -1,7 +1,7 @@
-jogZ();
-int direction = 0;
-float speed = 12.5;
-float delay = 0;
+jogZ(int zCurrent);
+float speed = 12.5; // mm/s
+float delay = 0;    // microsecs
+int dir = 0;
 
 // read input pin values
 up = digitalRead(upPin);
@@ -16,25 +16,27 @@ while (exitJog == LOW)
   while(up == HIGH || down == HIGH)
   {
     {   
-      // set direction of motor
+      // set dir of motor
       if(up == HIGH)
       {
+        dir = 1;
         digitalWrite(dirPin, HIGH); // set motor direction up         
       }
       else
       {
+        dir = 0;
         digitalWrite(dirPin, LOW);  // set motor direction down
       }
       
-      stepMotor(direction, delay)
+      stepMotor(dir, delay, zCurrent)
 
       if(up == HIGH)
       {
-        zCurrent += 0.1;
+        zCurrent += 0.1; // mm
       }
       else if (down == HIGH)
       {
-        zCurrent -= 0.1;
+        zCurrent -= 0.1; // mm
       }
 
       // read input pin values
