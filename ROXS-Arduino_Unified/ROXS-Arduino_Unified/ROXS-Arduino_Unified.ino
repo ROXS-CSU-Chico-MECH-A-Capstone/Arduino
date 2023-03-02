@@ -16,8 +16,8 @@ EthernetUDP Udp;
 //Define digital pins
 const int dirPin = 2;         // driver direction control
 const int stepPin = 3;        // driver step control
-const int onPin = 5;          // driver on/off input
-const int dircontrolPin = 7;  // driver direction input
+const int downPin = 5;          // driver on/off input
+const int upPin = 7;  // driver direction input
 const int limitPin = 8;       // z = 0 limit switch
 const int runPin = 6;         // run zero function
 
@@ -26,15 +26,6 @@ int gotoZ = 0;                         // target Z position
 int zCurrent = 0;                      // current Z position
 
 int exitJog = 0;
-
-//Lead Screw Scaling Calculations
-const int pitch = 2;                     //mm per rev
-const int res = 200;                     //steps per rev (full step) 
-int zConv = res / pitch;                 //steps per mm
-int speed = 0;                           //movement speed in mm per sec
-float delay = pitch / (2 * res * speed); //delay calc
-const float zeroSpeed 12.5;        //zero procedure gantry speed in mm per sec
-int zeroDelay = pitch / (2 * res * zeroSpeed);  //zeroSpeed converted to delay
 
 char readString;
 zeroString = String("zero");

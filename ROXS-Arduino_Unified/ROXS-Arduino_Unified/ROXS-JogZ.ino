@@ -1,19 +1,23 @@
-jogZ(zConv, zCurrent, delay);
+jogZ();
+int direction = 0;
+float speed = 12.5;
+float delay = 0;
 
 // read input pin values
-on = digitalRead(onPin);
-dir = digitalRead(dircontrolPin);
+up = digitalRead(upPin);
+down = digitalRead(downPin);
 
 while (exitJog == LOW)
 {
+  // need to add code to update speed in mm/s
+  delay = 0.05 / speed; // calculate motor cycle delay
+
   // motor movement loop
-  while(on == HIGH)
+  while(up == HIGH || down == HIGH)
   {
     {   
-      dir = digitalRead(dircontrolPin);
-
       // set direction of motor
-      if(dir == HIGH)
+      if(up == HIGH)
       {
         digitalWrite(dirPin, HIGH); // set motor direction up         
       }
@@ -22,23 +26,21 @@ while (exitJog == LOW)
         digitalWrite(dirPin, LOW);  // set motor direction down
       }
       
-      // step motor once
-      digitalWrite(stepPin, HIGH);
-      delayMicroseconds(400);
-      digitalWrite(stepPin, LOW);
-      delayMicroseconds(400);
+      stepMotor(direction, delay)
 
-      if(dir == HIGH)
+      if(up == HIGH)
       {
-        zCurrent += 1/zConv;
+        zCurrent += 0.1;
       }
-      else
+      else if (down == HIGH)
       {
-        zCurrent += 1/zConv;
+        zCurrent -= 0.1;
       }
 
       // read input pin values
       on = digitalRead(onPin);
     }
   }
+
+  // need to add code to check exitJog status over ethernet
 }
