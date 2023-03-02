@@ -1,28 +1,28 @@
 jogZ(zConv, zCurrent, delay);
 
-//read input pin values
+// read input pin values
 on = digitalRead(onPin);
 dir = digitalRead(dircontrolPin);
 
 while (exitJog == LOW)
 {
-  //motor movement loop
+  // motor movement loop
   while(on == HIGH)
   {
     {   
       dir = digitalRead(dircontrolPin);
 
-      //set direction of motor
+      // set direction of motor
       if(dir == HIGH)
       {
-        digitalWrite(dirPin, HIGH); //set motor direction up         
+        digitalWrite(dirPin, HIGH); // set motor direction up         
       }
       else
       {
-        digitalWrite(dirPin, LOW);  //set motor direction down
+        digitalWrite(dirPin, LOW);  // set motor direction down
       }
       
-      //step motor once
+      // step motor once
       digitalWrite(stepPin, HIGH);
       delayMicroseconds(400);
       digitalWrite(stepPin, LOW);
@@ -37,7 +37,7 @@ while (exitJog == LOW)
         zCurrent += 1/zConv;
       }
 
-      //read input pin values
+      // read input pin values
       on = digitalRead(onPin);
     }
   }

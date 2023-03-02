@@ -4,7 +4,7 @@ moveZ(zCurrent, gotoZ, delay);
   {
       digitalWrite(dirPin, HIGH);
     
-      //step motor once
+      // step motor once
       digitalWrite(stepPin, HIGH);
       delayMicroseconds(delay);
       digitalWrite(stepPin, LOW);

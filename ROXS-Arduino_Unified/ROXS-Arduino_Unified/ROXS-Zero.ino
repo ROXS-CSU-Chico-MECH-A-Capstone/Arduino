@@ -2,15 +2,15 @@ zeroZ(zeroDelay);
 
 const int slowFactor = 4;
 
-//read input pin values
+// read input pin values
 limit = digitalRead(limitPin);
 
-//move motor down until limit switch activation
+// move motor down until limit switch activation
 while(limit == LOW)
 { 
   digitalWrite(dirPin, LOW);
   
-  //step motor once
+  // step motor once
   digitalWrite(stepPin, HIGH);
   delayMicroseconds(zeroDelay);
   digitalWrite(stepPin, LOW);
@@ -21,12 +21,12 @@ while(limit == LOW)
 
 delay(250);
 
-//move motor vertically offset distance
+// move motor vertically offset distance
 for (int i = 0; i < offset * zconv; i++)
 {
   digitalWrite(dirPin, HIGH);
 
-  //step motor once
+  // step motor once
   digitalWrite(stepPin, HIGH);
   delayMicroseconds(zeroDelay);
   digitalWrite(stepPin, LOW);
@@ -35,12 +35,12 @@ for (int i = 0; i < offset * zconv; i++)
 
 limit = digitalRead(limitPin);
 
-//move motor slowly to zero point
+// move motor slowly to zero point
 while(limit == LOW)
 { 
   digitalWrite(dirPin, LOW);
   
-  //step motor once
+  // step motor once
   digitalWrite(stepPin, HIGH);
   delayMicroseconds(zeroDelay*slowFactor);
   digitalWrite(stepPin, LOW);

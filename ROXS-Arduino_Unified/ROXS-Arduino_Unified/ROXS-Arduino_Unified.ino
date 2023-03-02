@@ -2,29 +2,28 @@
 #include <Ethernet.h>
 #include <EthernetUdp.h>
 
-//Assign MAC and IP address for Arduino
+// assign MAC and IP address for Arduino
 byte mac[] = {0x90, 0xA2, 0xDA, 0x0D, 0x48, 0xD3 };
 IPAddress ip(192,168,1,200);
 
-unsigned int localPort = 8888; //local port to listen on
+unsigned int localPort = 8888; // local port to listen on
 
-char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet,
+char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet
 char ReplyBuffer[] = "acknowledged";        // a string to send back
 
-// An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
 
 //Define digital pins
-const int dirPin = 2;         //driver direction control
-const int stepPin = 3;        //driver step control
-const int onPin = 5;          //driver on/off input
-const int dircontrolPin = 7;  //driver direction input
-const int limitPin = 8;       //z = 0 limit switch
-const int runPin = 6;         //run zero function
+const int dirPin = 2;         // driver direction control
+const int stepPin = 3;        // driver step control
+const int onPin = 5;          // driver on/off input
+const int dircontrolPin = 7;  // driver direction input
+const int limitPin = 8;       // z = 0 limit switch
+const int runPin = 6;         // run zero function
 
 //Go to Z Parameters
-int gotoZ = 0;                         //Target Z position
-int zCurrent = 0;                      //Current Z position
+int gotoZ = 0;                         // target Z position
+int zCurrent = 0;                      // current Z position
 
 int exitJog = 0;
 
@@ -45,7 +44,7 @@ exitString = String("exit");
 
 void setup() 
 {
-  //Declare pins as Inputs/Outputs
+  // declare pins as Inputs/Outputs
   pinMode(stepPin, OUTPUT);
   pinMode(dirPin, OUTPUT);
   pinMode(onPin, INPUT);
@@ -56,7 +55,7 @@ void setup()
   // start the Ethernet
   Ethernet.begin(mac, ip);
 
-  // Open serial communications and wait for port to open:
+  // open serial communications and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
@@ -79,6 +78,7 @@ void setup()
 
 void loop() 
 {
+  // serial Monitoring
   // if there's data available, read a packet
   int packetSize = Udp.parsePacket();
   if (packetSize) 
