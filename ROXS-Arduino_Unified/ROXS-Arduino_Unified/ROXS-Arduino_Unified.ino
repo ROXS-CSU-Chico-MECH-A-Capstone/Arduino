@@ -22,8 +22,8 @@ const int limitPin = 8;       // z = 0 limit switch
 const int runPin = 6;         // run zero function
 
 //Go to Z Parameters
-int gotoZ = 0;                         // target Z position
-int zCurrent = 0;                      // current Z position
+int gotoZ = 0;                // target Z position
+int zCurrent = 0;             // current Z position
 
 int exitJog = 0;
 
