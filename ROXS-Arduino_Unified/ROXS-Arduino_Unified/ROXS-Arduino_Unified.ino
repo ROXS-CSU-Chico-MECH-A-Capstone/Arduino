@@ -27,11 +27,19 @@ int zCurrent = 0;             // current Z position
 
 int exitJog = 0;
 
+<<<<<<< Updated upstream
 String readString;
 String zeroString = "zero";
 String moveString = "move";
 String jogString = "jog";
 String exitString = "exit";
+=======
+char readString;
+String zeroString = "zero";
+moveString = String("move");
+jogString = String("jog");
+exitString = String("exit");
+>>>>>>> Stashed changes
 
 void stepMotor(int direction, float delay, float zCurrent);
 void moveZ(float zCurrent, float gotoZ, float speed);
@@ -108,6 +116,7 @@ void loop()
 
   if (readString == "zeroString")
   {
+<<<<<<< Updated upstream
     zeroZ(zCurrent);  //run zeroing function
   }
   else if (readString == "moveString")
@@ -115,6 +124,16 @@ void loop()
     //check for z coordinate
     moveZ(zCurrent, gotoZ, speed);
   }
+=======
+    zeroZ(zeroDelay);  //run zeroing function
+  };
+  else if (readString == "moveString")
+  {
+    //check for z coordinate
+    moveZ(zCurrent, gotoZ, delay);
+  }
+
+>>>>>>> Stashed changes
   else if (readString == "jogString")
   {
     jogZ(zConv, zCurrent, delay);
