@@ -27,11 +27,11 @@ int zCurrent = 0;             // current Z position
 
 int exitJog = 0;
 
-char readString;
-zeroString = String("zero");
-moveString = String("move");
-jogString = String("jog");
-exitString = String("exit");
+String readString;
+String zeroString = "zero";
+String moveString = "move";
+String jogString = "jog";
+String exitString = "exit";
 
 void stepMotor(int direction, float delay, float zCurrent);
 void moveZ(float zCurrent, float gotoZ, float speed);
@@ -43,8 +43,8 @@ void setup()
   // declare pins as Inputs/Outputs
   pinMode(stepPin, OUTPUT);
   pinMode(dirPin, OUTPUT);
-  pinMode(onPin, INPUT);
-  pinMode(dircontrolPin, INPUT);
+  //pinMode(onPin, INPUT);
+ // pinMode(dircontrolPin, INPUT);
   pinMode(limitPin, INPUT);
   pinMode(runPin, INPUT);
 
@@ -95,7 +95,8 @@ void loop()
     Serial.println(Udp.remotePort());
 
     // read the packet into packetBufffer
-    readstring = Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
+    //readstring =
+    Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
     Serial.println("Contents:");
     Serial.println(packetBuffer);
 
@@ -107,13 +108,12 @@ void loop()
 
   if (readString == "zeroString")
   {
-    zeroZ(zeroDelay);  //run zeroing function
+    zeroZ(zCurrent);  //run zeroing function
   }
   else if (readString == "moveString")
   {
     //check for z coordinate
-    moveZ(zCurrent, gotoZ, delay);
-  }
+    moveZ(zCurrent, gotoZ, speed);
   }
   else if (readString == "jogString")
   {
