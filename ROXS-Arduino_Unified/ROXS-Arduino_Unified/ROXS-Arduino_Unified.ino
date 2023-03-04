@@ -16,8 +16,8 @@ EthernetUDP Udp;
 //Define digital pins
 const int dirPin = 2;         // driver direction control
 const int stepPin = 3;        // driver step control
-const int downPin = 5;          // driver on/off input
-const int upPin = 7;  // driver direction input
+const int downPin = 5;        // driver on/off input
+const int upPin = 7;          // driver direction input
 const int limitPin = 8;       // z = 0 limit switch
 const int runPin = 6;         // run zero function
 
