@@ -3,12 +3,11 @@ void reportInt()
   int intensity = 0;        // voltage as intensity
   intensity = analogRead(A0); // read photoresistor voltage
 
-  //temporarily holds data from vals
-  char charVal[intensity];                
+  // convert intensity to string
+  char charVal[10];            
+  dtostrf(intensity, 2, 1, charVal);
 
-  //4 is mininum width, 3 is precision; float value is copied onto buff
-  dtostrf(123.234, 4, 3, charVal);
-
+  // send packet with intensity value
   Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
   Udp.write(charVal);
   Udp.endPacket();

@@ -19,28 +19,19 @@ void jogZ(float zCurrent)
     while(up == HIGH || down == HIGH)
     {
       {   
-        // set dir of motor
+        // incriment current z value (mm)
         if(up == HIGH)
         {
           dir = 1;
-          digitalWrite(dirPin, HIGH); // set motor direction up         
-        }
-        else
-        {
-          dir = 0;
-          digitalWrite(dirPin, LOW);  // set motor direction down
-        }
-        
-        stepMotor(dir, delay, zCurrent);
-  
-        if(up == HIGH)
-        {
-          zCurrent += 0.1; // mm
+          zCurrent += 0.1; 
         }
         else if (down == HIGH)
         {
-          zCurrent -= 0.1; // mm
+          dir = 0;
+          zCurrent -= 0.1;
         }
+
+        stepMotor(dir, delay, zCurrent);
   
         // read input pin values
         up = digitalRead(upPin);
