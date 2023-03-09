@@ -1,4 +1,4 @@
-void jogZ(int zCurrent)
+void jogZ(float zCurrent)
 {
   float speed = 12.5; // mm/s
   float delay = 0;    // microsecs
