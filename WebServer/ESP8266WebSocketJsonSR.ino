@@ -1,10 +1,12 @@
 // ---------------------------------------------------------------------------------------
 //
-// Code for a simple webserver on the ESP32 (device used for tests: ESP32-WROOM-32D).
-// The code generates two random numbers on the ESP32 and uses Websockets to continuously
+// Code for a simple webserver on the ESP8266
+// The code opens inputs for position and speed with submit buttons and uses Websockets to continuously
 // update the web-clients. For data transfer JSON encapsulation is used.
 //
 // For installation, the following libraries need to be installed:
+// * ESP8266WiFi
+// * ESP8266WebServer
 // * Websockets by Markus Sattler (can be tricky to find -> search for "Arduino Websockets"
 // * ArduinoJson by Benoit Blanchon
 //
@@ -14,7 +16,7 @@
 // Refer to https://youtu.be/15X0WvGaVg8
 //
 // Written by mo thunderz (last update: 27.08.2022)
-//
+// Adapted by Jeremy West
 // ---------------------------------------------------------------------------------------
 
 #include <ESP8266WiFi.h>                                     // needed to connect to WiFi
@@ -23,14 +25,17 @@
 #include <ArduinoJson.h>                              // needed for JSON encapsulation (send multiple variables with one string)
 
 // SSID and password of Wifi connection:
-const char* ssid = "WhatsBetterThan25";
-const char* password = "welding26";
-//const char* ssid = "MPJAC82";
-//const char*password= "N0t14u2c.82";
+//const char* ssid = "WhatsBetterThan25";
+//const char* password = "welding26";
+const char* ssid = "MPJAC82";
+const char*password= "N0t14u2c.82";
 //const char* ssid = "ROXS24";
 //const char*password= "capstone";
+
+// Initial constant paramters
 float speed=1;
 float pos=1;
+
 // The String below "webpage" contains the complete HTML code that is sent to the client whenever someone connects to the webserver
 String  webpage = "<!DOCTYPE html><html> <head> <title>ESP8266 WifiServer</title> </head> <body> <h1>ESP8266 WifiServer</h1><p><h2>Input Position</h2></p> <div> <span> <input type='number' id='pos' placeholder='Enter Position' name='Name' maxlength='4'/> <input type='number' id='speed' placeholder='Enter Speed' name='Name' maxlength='4'/> </span> </div> <div> <input type='submit' id='submit1' value='Update Position'> <input type='submit' id='submit2' value='Update Speed'> </div> <div> <label for='output1'>Called Position</label> <p class='output' id='output1'></p> <label for='output2'>Called Speed</label> <p class='output' id='output2'></p> </div> </body> <script> document.getElementById('submit1').addEventListener('click', UpdatePos); document.getElementById('submit2').addEventListener('click', UpdateSpeed); var out1 = document.getElementById('output1'); var out2 = document.getElementById('output2'); var pos = document.getElementById('pos'); var speed = document.getElementById('speed'); var Socket; function init() { Socket = new WebSocket('ws://' + window.location.hostname + ':81/'); Socket.onmessage = function(event) { processCommand(event); }; } function UpdatePos () { var l_pos= pos.value; out1.innerHTML =l_pos; console.log(l_pos); var msg = { type: 'New Pos', value: l_pos}; Socket.send(JSON.stringify(msg)); } function UpdateSpeed () { var l_speed= speed.value; out2.innerHTML =l_speed; console.log(l_speed); var msg = { type: 'New Speed', value: l_speed}; Socket.send(JSON.stringify(msg)); } function processCommand(event) { var obj = JSON.parse(event.data); var type = obj.type; if (type.localeCompare('New Pos') == 0) { var l_pos = parseInt(obj.value); console.log(l_pos); out1.innerHTML = l_pos; } else if (type.localeCompare('New Speed') == 0) { var l_speed = parseInt(obj.value); console.log(l_speed); out2.innerHTML = l_speed; } document.getElementById('pos').innerHTML = obj.pos; document.getElementById('speed').innerHTML = obj.speed; console.log(obj.pos); console.log(obj.speed); } window.onload = function(event) { init(); } </script></html>";
 
@@ -57,17 +62,17 @@ void setup() {
     Serial.print(".");
   }
   Serial.print("Connected to network with IP address: ");
-  Serial.println(WiFi.localIP());                     // show IP address that the ESP32 has received from router
+  Serial.println(WiFi.localIP());                     // show IP address that the ESP8266 has received from router
   
   server.on("/", []() {                               // define here what the webserver needs to do
     server.send(200, "text/html", webpage);           //    -> it needs to send out the HTML string "webpage" to the client
   });
-  Serial.print("Server On ");
+
   server.begin();                                     // start server
-  Serial.print("Server Begun ");
   webSocket.begin();                                  // start websocket
-  Serial.print("Websocket Initilized");
   webSocket.onEvent(webSocketEvent);                  // define a callback function -> what does the ESP32 need to do when an event from the websocket is received? -> run function "webSocketEvent()"
+  Serial.print("System Nominal");
+  Serial.print("");
 }
 
 void loop() {
@@ -101,26 +106,27 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
         Serial.println("Type: " + String(l_type));
         Serial.println("Value: " + String(l_value));
 
-        // if LED_intensity value is received -> update and write to LED
+        // if "New Speed" is received -> update speed constant
         if(String(l_type) == "New Speed") {
           speed = int(l_value);
           sendJson("New Speed", String(l_value));
           //function goes here
         }
-        // if LED_intensity value is received -> update and write to LED
+        
+        // if "New Pos" is received -> update Pos and call move function
         if(String(l_type) == "New Pos") {
           pos = int(l_value);
           sendJson("New Pos", String(l_value));
           //function goes here
         }
-
-      
       }
       Serial.println("");
       break;
   }
 }
 
+//Update all clients with other client's activities
+//Send Json back to ESP8266 for everyone else to see
 void sendJson(String l_type, String l_value) {
     String jsonString = "";                           // create a JSON string for sending data to the client
     StaticJsonDocument<200> doc;                      // create JSON container
