@@ -1,0 +1,91 @@
+
+<!DOCTYPE html><html> 
+  <head>
+    <title>ESP8266 WifiServer</title> 
+  </head>
+
+  <body> 
+    <h1>ESP8266 WifiServer</h1><p><h2>Input Position</h2></p>
+    <div>  
+        <span> 
+        <input type='number' id='pos' placeholder='Enter Position' name='Name' maxlength='4'/>
+        <input type='number' id='speed' placeholder='Enter Speed' name='Name'  maxlength='4'/>
+        </span> 
+    </div>
+    <div>
+    <input type='submit' id='submit1' value='Update Position'>
+    <input type='submit' id='submit2' value='Update Speed'>
+    </div> 
+    <div>
+    <label for='output1'>Called Position</label>
+    <p class='output' id='output1'></p>
+    <label for='output2'>Called Speed</label>
+    <p class='output' id='output2'></p>
+    </div>
+
+
+
+    
+  </body>
+  <script>
+    document.getElementById('submit1').addEventListener('click', UpdatePos);
+    document.getElementById('submit2').addEventListener('click', UpdateSpeed);
+
+    var out1 = document.getElementById('output1');
+    var out2 = document.getElementById('output2');
+
+
+    var pos = document.getElementById('pos');
+    var speed = document.getElementById('speed');
+    
+    var Socket;
+
+
+
+    function init() {
+        Socket = new WebSocket('ws://' + window.location.hostname + ':81/');
+        Socket.onmessage = function(event) {
+            processCommand(event);
+         };
+        }
+
+    function UpdatePos () {
+        var l_pos= pos.value;
+    out1.innerHTML =l_pos;
+    console.log(l_pos);
+    var msg = { type: 'New Pos', value: l_pos};
+    Socket.send(JSON.stringify(msg)); 
+    }
+
+    function UpdateSpeed () {
+        var l_speed= speed.value;
+    out2.innerHTML =l_speed;
+    console.log(l_speed);
+    var msg = { type: 'New Speed', value: l_speed};
+    Socket.send(JSON.stringify(msg)); 
+    }
+
+    function processCommand(event) {
+    var obj = JSON.parse(event.data);
+        var type = obj.type;
+        if (type.localeCompare('New Pos') == 0) {
+            var l_pos = parseInt(obj.value); 
+            console.log(l_pos); 
+            out1.innerHTML = l_pos;
+        }
+        else if (type.localeCompare('New Speed') == 0) { 
+            var l_speed = parseInt(obj.value); 
+            console.log(l_speed); 
+            out2.innerHTML = l_speed;
+        }
+
+        document.getElementById('pos').innerHTML = obj.pos;
+        document.getElementById('speed').innerHTML = obj.speed;
+        console.log(obj.pos);
+        console.log(obj.speed);
+        }
+    window.onload = function(event) {
+     init();
+     }
+    </script>
+</html>
