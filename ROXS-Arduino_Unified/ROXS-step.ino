@@ -1,4 +1,4 @@
-void stepMotor(int direction, float delay, float zCurrent)
+void stepMotor(int direction, float delay, int zCurrent)
 {
   // direction = 0 or 1
   // delay determines speed
@@ -21,12 +21,13 @@ void stepMotor(int direction, float delay, float zCurrent)
   digitalWrite(stepPin, LOW);
   delayMicroseconds(delay);
 
-  /*
-  // report current z value
-  ss1 << zCurrent
-  std::string zReport = ss1.str()
+  //temporarily holds data from vals
+  char charVal[zCurrent];            
+
+  //4 is mininum width, 3 is precision; float value is copied onto buff
+  dtostrf(123.234, 4, 3, charVal);
+
   Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-  Udp.write(zReport);
+  Udp.write(charVal);
   Udp.endPacket();
-  */
 }

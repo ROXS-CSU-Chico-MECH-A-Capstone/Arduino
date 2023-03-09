@@ -1,11 +1,13 @@
 //Load Arduino Libraries
+#include <SPI.h>
 #include <Ethernet.h>
 #include <EthernetUdp.h>
 
 void jogZ();
 void moveZ();
 void zeroZ();
-void step();
+void stepMotor();
+void reportInt();
 
 // assign MAC and IP address for Arduino
 byte mac[] = {0x90, 0xA2, 0xDA, 0x0D, 0x48, 0xD3 };
@@ -27,8 +29,8 @@ const int limitPin = 8;       // z = 0 limit switch
 const int runPin = 6;         // run zero function
 
 //Go to Z Parameters
-int gotoZ = 0;                // target Z position
-int zCurrent = 0;             // current Z position
+float gotoZ = 0;                // target Z position
+float zCurrent = 0;             // current Z position
 int exitJog = 0;
 
 int speed = 12.5;             //default speed
@@ -38,11 +40,6 @@ String zeroString = "zero";
 String moveString = "move";
 String jogString = "jog";
 String exitString = "exit";
-
-void stepMotor(int direction, float delay, float zCurrent);
-void moveZ(float zCurrent, float gotoZ, float speed);
-void zeroZ(float zCurrent);
-void jogZ(int zCurrent);
 
 void setup() 
 {
