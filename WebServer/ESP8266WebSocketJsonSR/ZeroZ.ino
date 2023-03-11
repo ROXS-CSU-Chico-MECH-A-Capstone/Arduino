@@ -1,5 +1,8 @@
 float zeroZ(float zCurrent)
 {
+  // report zeroing routine to serial
+  Serial.println("Running Zeroing Routine...");
+
   int delay = 4000;      // fast movement delay
   int slowDelay = 12000; // slow movement delay
   int offset = 4 * 100;  // vertical offset distance
@@ -36,5 +39,9 @@ float zeroZ(float zCurrent)
   
   zCurrent = 0;
   reportVals(zCurrent);
-  return zCurrent;
+
+  // report zeroing routine to serial
+  Serial.println("Zeroing Routine Finished");
+
+  return zCurrent; // return updated z value
 }

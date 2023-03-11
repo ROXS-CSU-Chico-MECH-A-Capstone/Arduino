@@ -1,24 +1,26 @@
-//Load Arduino Libraries
-#include <SPI.h>
+// Include libraries for JSON and Web Sockets
 #include <Ethernet.h>
-#include <EthernetUdp.h>
+#include <ArduinoJson.h>
+#include <WebSocketServer.h>
+using namespace net;
 
-void jogZ();
-void moveZ();
-void zeroZ();
-void stepMotor();
-void reportInt();
+#include <config.h>
+#define NETWORK_CONTROLLER ETHERNET_CONTROLLER_W5100
+WebSocketServer server{3000};
 
 // assign MAC and IP address for Arduino
-byte mac[] = {0x90, 0xA2, 0xDA, 0x0D, 0x48, 0xD3 };
+byte mac[] = {0x90, 0xA2, 0xDA, 0x0D, 0x48, 0xD3};
 IPAddress ip(192,168,1,200);
+
+constexpr uint16_t port = 3000;
+WebSocketServer wss{port};
 
 unsigned int localPort = 8888; // local port to listen on
 
-char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet
-char ReplyBuffer[] = "acknowledged";        // a string to send back
-
-EthernetUDP Udp;
+void moveZ();
+float zeroZ();
+float stepMotor();
+void reportVals();
 
 //Define digital pins
 const int dirPin = 2;         // driver direction control
@@ -28,18 +30,7 @@ const int upPin = 7;          // driver direction input
 const int limitPin = 8;       // z = 0 limit switch
 const int runPin = 6;         // run zero function
 
-//Go to Z Parameters
-float gotoZ = 0;              // target Z position
-float zCurrent = 0;           // current Z position
-int exitJog = 0;
-
-int speed = 12.5;             //default speed
-
-String readString = "";
-String zeroString = "zero";
-String moveString = "move";
-String jogString = "jog";
-String exitString = "exit";
+float zCurrent = 0;
 
 void setup() {
   // declare pins as Inputs/Outputs
@@ -50,67 +41,107 @@ void setup() {
   pinMode(limitPin, INPUT);
   pinMode(runPin, INPUT);
 
-  // start the Ethernet
-  Ethernet.begin(mac, ip);
+  Serial.begin(9600);      // start serial port
 
-  // open serial communications and wait for port to open:
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
+  // initialize ethernet
+  Serial.print(F("Initializing Ethernet... "));
+  Ethernet.begin(mac, ip);
+  Serial.println("Ready");
 
   // Check for Ethernet hardware present
   if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-    Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+    Serial.println("Ethernet shield was not found.");
     while (true) {
       delay(1); // do nothing, no point running without Ethernet hardware
     }
+    Serial.println("Ethernet shield found.");
   }
   if (Ethernet.linkStatus() == LinkOFF) {
-    Serial.println("Ethernet cable is not connected.");
+    Serial.println("Ethernet cable is not connected... ");
+    while (true) {
+      delay(1);      
+    }
+    Serial.println("Ethernet cable connected.");
   }
 
-  // start UDP
-  Udp.begin(localPort);
+  Serial.print(F("Server running at "));
+  Serial.print(Ethernet.localIP());
+  Serial.print(F(":"));
+  Serial.println(port);
+  Ethernet.begin(mac, ip); // start Ethernet
+
+  wss.onConnection([](WebSocket &ws) {
+    const auto protocol = ws.getProtocol();
+    if (protocol) {
+      Serial.print(F("Client protocol: "));
+      Serial.println(protocol);
+    }
+
+  ws.onMessage([](WebSocket &ws, const WebSocket::DataType dataType,
+                  const char *message, uint16_t length) {
+    switch (dataType) {
+    case WebSocket::DataType::TEXT:
+      Serial.print(F("Received: "));
+      Serial.println(message);
+      break;
+    case WebSocket::DataType::BINARY:
+      Serial.println(F("Received binary data"));
+      break;
+    }
+
+    ws.send(dataType, message, length);
+  });
+
+  ws.onClose([](WebSocket &, const WebSocket::CloseCode, const char *,
+                uint16_t) { Serial.println(F("Disconnected")); });
+
+    Serial.print(F("New client: "));
+    Serial.println(ws.getRemoteIP());
+
+    const char message[]{"Hello from Arduino server!"};
+    ws.send(WebSocket::DataType::TEXT, message, strlen(message));
+  });
+
+  wss.begin();  // start webSocketServer
 }
 
-void loop() {
-  // serial Monitoring
-  // if there's data available, read a packet
-  int packetSize = Udp.parsePacket();
-  if (packetSize) {
-    Serial.print("Received packet of size ");
-    Serial.println(packetSize);
-    Serial.print("From ");
-    IPAddress remote = Udp.remoteIP();
-    for (int i=0; i < 4; i++) {
-      Serial.print(remote[i], DEC);
-      if (i < 3) {
-        Serial.print(".");
-      }
-    }
-    Serial.print(", port ");
-    Serial.println(Udp.remotePort());
+void loop() 
+{
+  wss.listen();
+  //recieve packet
 
-    // read the packet into packetBufffer
-    //readstring =
-    Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-    Serial.println("Contents:");
-    Serial.println(packetBuffer);
+  //example Json
+  char json[] = "{\"type\":\"move\",\"zValues\":[100.0,12.5]}";
 
-    // send a reply to the IP address and port that sent us the packet we received
-    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    Udp.write(ReplyBuffer);
-    Udp.endPacket();
+  StaticJsonDocument<64> doc;  // initialize Json doc
+  DeserializationError error = deserializeJson(doc, json);
+
+  // Test if parsing succeeds.
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
   }
 
-  if (readString == "zeroString"){
-    zeroZ(zCurrent);  //run zeroing function
+  const char* type = doc["type"];     // define string from Json doc
+  float gotoZ = doc["zValues"][0];    // define z position float  
+  float speed = doc["zValues"][1];    // define z speed
+
+  // Print values.
+  Serial.print("A command of type: ");
+  Serial.print(type);
+  Serial.print(" was recieved.");
+
+  if (type == "zero") {
+    zCurrent = zeroZ(zCurrent);  //run zeroing function
   }
-  else if (readString == "moveString") {
-    moveZ(zCurrent, gotoZ, speed);
+  else if (type == "move") {
+    Serial.print("Target Z: ");
+    Serial.println(gotoZ);
+    Serial.print("Speed: ");
+    Serial.println(speed);
+    zCurrent = moveZ(gotoZ, speed, zCurrent);
   }
-  else if (readString == "jogString") {
-    jogZ(zCurrent);
-  }
+
+  reportVals(zCurrent);
 }
