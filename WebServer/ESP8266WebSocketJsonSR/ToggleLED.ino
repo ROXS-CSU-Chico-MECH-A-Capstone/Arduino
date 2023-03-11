@@ -10,5 +10,5 @@ bool ledToggle(bool ledStatus) {
     ledStatus = false;
     Serial.println("LED: Off");
   }
-  return ledStatus;
+  return ledStatus; // return updated ledStatus
 }

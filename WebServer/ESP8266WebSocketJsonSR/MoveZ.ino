@@ -1,5 +1,4 @@
-float moveZ(float gotoZ, float speed, float zCurrent)
-{
+float moveZ(float gotoZ, float speed, float zCurrent){
   // zCurrent is the current known z position of gantry
   // gotoZ is the desired z postion
 
@@ -9,16 +8,12 @@ float moveZ(float gotoZ, float speed, float zCurrent)
   // initialize direction pin output
   int dir  = 0;
   
-  if (gotoZ != zCurrent)
-  {
+  if (gotoZ != zCurrent) {
     // set gantry direction
-    if (gotoZ > zCurrent)
-    {
+    if (gotoZ > zCurrent) {
       dir = 1;
-    }  
-    
-    for (int i = 0; i < disp; i++)
-    { 
+    }   
+    for (int i = 0; i < disp; i++) { 
       stepMotor(dir, delay, zCurrent);
     }
   }

@@ -44,7 +44,7 @@ const char* password = "N0t14u2c.82";
 float speed = 0;       // in mm/s
 float pos = 0;         // in mm
 float zCurrent = 463;  // in mm
-bool ledStatus = 0;
+bool ledStatus = false;
 
 // Define pinouts for digital in/out & analog read
 const int stepPin = 5;
@@ -169,4 +169,3 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
       break;
   }
 }
-
