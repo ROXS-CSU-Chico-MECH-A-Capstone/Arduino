@@ -1,7 +1,14 @@
-//Load Arduino Libraries
-#include <SPI.h>
-#include <Ethernet.h>
-#include <EthernetUdp.h>
+// Include libraries for JSON and Web Sockets
+#include <Arduino_JSON.h>
+
+#include <WebSocket.h>
+#include <WebSocketClient.h>
+#include <WebSocketServer.h>
+#include <config.h>
+#include <platform.h>
+#include <utility.h>
+
+WebSocketServer server{3000};
 
 void jogZ();
 void moveZ();
@@ -17,8 +24,6 @@ unsigned int localPort = 8888; // local port to listen on
 
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet
 char ReplyBuffer[] = "acknowledged";        // a string to send back
-
-EthernetUDP Udp;
 
 //Define digital pins
 const int dirPin = 2;         // driver direction control
@@ -43,6 +48,29 @@ String exitString = "exit";
 
 void setup() 
 {
+  Ethernet.begin(mac, ip); // start Ethernet
+
+  server.onConnection([](WebSocket &ws) {
+    const char message[]{ "Hello from Arduino server!" };
+    ws.send(WebSocket::DataType::TEXT, message, strlen(message));
+
+    ws.onClose([](WebSocket &ws, const WebSocket::CloseCode code,
+                 const char *reason, uint16_t length) {
+      // ...
+    });
+    ws.onMessage([](WebSocket &ws, const WebSocket::DataType dataType,
+                   const char *message, uint16_t length) {
+      // ...
+    });
+  });
+
+  server.begin();          //start Websocket Server
+
+  // open serial communications and wait for port to open:
+  Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+
   // declare pins as Inputs/Outputs
   pinMode(stepPin, OUTPUT);
   pinMode(dirPin, OUTPUT);
@@ -50,14 +78,6 @@ void setup()
   pinMode(downPin, INPUT);
   pinMode(limitPin, INPUT);
   pinMode(runPin, INPUT);
-
-  // start the Ethernet
-  Ethernet.begin(mac, ip);
-
-  // open serial communications and wait for port to open:
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
   }
 
   // Check for Ethernet hardware present
@@ -70,44 +90,40 @@ void setup()
   if (Ethernet.linkStatus() == LinkOFF) {
     Serial.println("Ethernet cable is not connected.");
   }
-
-  // start UDP
-  Udp.begin(localPort);
 }
 
 void loop() 
 {
+  server.listen();
   // serial Monitoring
   // if there's data available, read a packet
-  int packetSize = Udp.parsePacket();
-  if (packetSize) 
-  {
-    Serial.print("Received packet of size ");
-    Serial.println(packetSize);
-    Serial.print("From ");
-    IPAddress remote = Udp.remoteIP();
-    for (int i=0; i < 4; i++) 
-    {
-      Serial.print(remote[i], DEC);
-      if (i < 3) 
-      {
-        Serial.print(".");
-      }
-    }
-    Serial.print(", port ");
-    Serial.println(Udp.remotePort());
+  char json[] =
+      "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[48.756080,2.302038]}";
 
-    // read the packet into packetBufffer
-    //readstring =
-    Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-    Serial.println("Contents:");
-    Serial.println(packetBuffer);
+  // Deserialize the JSON document
+  DeserializationError error = deserializeJson(doc, json);
 
-    // send a reply to the IP address and port that sent us the packet we received
-    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    Udp.write(ReplyBuffer);
-    Udp.endPacket();
+  // Test if parsing succeeds.
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
   }
+
+  // Fetch values.
+  //
+  // Most of the time, you can rely on the implicit casts.
+  // In other case, you can do doc["time"].as<long>();
+  const char* sensor = doc["sensor"];
+  long time = doc["time"];
+  double latitude = doc["data"][0];
+  double longitude = doc["data"][1];
+
+  // Print values.
+  Serial.println(sensor);
+  Serial.println(time);
+  Serial.println(latitude, 6);
+  Serial.println(longitude, 6);
 
   if (readString == "zeroString")
   {
