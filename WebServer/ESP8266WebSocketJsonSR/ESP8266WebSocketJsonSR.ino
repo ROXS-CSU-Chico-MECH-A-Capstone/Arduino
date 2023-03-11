@@ -41,17 +41,17 @@ const char* password = "N0t14u2c.82";
 //const char*password= "capstone";
 
 // Initial constant paramters
-float speed = 0;       // in mm/s
-float pos = 0;         // in mm
-float zCurrent = 463;  // in mm
-bool ledStatus = false;
+float speed = 0;        // in mm/s
+float pos = 0;          // in mm
+float zCurrent = 463;   // in mm
+bool ledStatus = false; // false = off, true = on
 
 // Define pinouts for digital in/out & analog read
-const int stepPin = 5;
-const int dirPin = 4;
-const int limitPin = 14;
-const int ledPin = 12;
-const int photoPin = A0;
+const int stepPin = 5;     // to step pin on motor driver
+const int dirPin = 4;      // to direction pin on motor driver
+const int limitPin = 14;   // from limit switch input
+const int ledPin = 12;     // to relay for LED
+const int photoPin = A0;   // from photoresistor circuit
 
 // The String below "webpage" contains the complete HTML code that is sent to the client whenever someone connects to the webserver
 String  webpage = "<!DOCTYPE html><html> <head> <title>ESP8266 WifiServer</title> </head> <body> <h1>ESP8266 WifiServer</h1><p><h2>Input Position</h2></p> <div> <span> <input type='number' id='pos' placeholder='Enter Position' name='Name' maxlength='4'/> <input type='number' id='speed' placeholder='Enter Speed' name='Name' maxlength='4'/> </span> </div> <div> <input type='submit' id='submit1' value='Update Position'> <input type='submit' id='submit2' value='Update Speed'> <input type='submit' id='submit3' value='Home'> </div> <div> <label for='output1'>Called Position</label> <p class='output' id='output1'></p> <label for='output2'>Called Speed</label> <p class='output' id='output2'></p> </div> </body> <script> document.getElementById('submit1').addEventListener('click', UpdatePos); document.getElementById('submit2').addEventListener('click', UpdateSpeed); document.getElementById('submit3').addEventListener('click', Home); var out1 = document.getElementById('output1'); var out2 = document.getElementById('output2'); var pos = document.getElementById('pos'); var speed = document.getElementById('speed'); var Socket; function init() { Socket = new WebSocket('ws://' + window.location.hostname + ':81/'); Socket.onmessage = function(event) { processCommand(event); }; } function UpdatePos () { var l_pos= pos.value; out1.innerHTML =l_pos; console.log(l_pos); var msg = { type: 'New Pos', value: l_pos}; Socket.send(JSON.stringify(msg)); } function UpdateSpeed () { var l_speed= speed.value; out2.innerHTML =l_speed; console.log(l_speed); var msg = { type: 'New Speed', value: l_speed}; Socket.send(JSON.stringify(msg)); } function Home () { console.log('Home called'); var msg = { type: 'Home'}; Socket.send(JSON.stringify(msg)); } function processCommand(event) { var obj = JSON.parse(event.data); var type = obj.type; if (type.localeCompare('New Pos') == 0) { var l_pos = parseInt(obj.value); console.log(l_pos); out1.innerHTML = l_pos; } else if (type.localeCompare('New Speed') == 0) { var l_speed = parseInt(obj.value); console.log(l_speed); out2.innerHTML = l_speed; } document.getElementById('pos').innerHTML = obj.pos; document.getElementById('speed').innerHTML = obj.speed; console.log(obj.pos); console.log(obj.speed); } window.onload = function(event) { init(); } </script></html>";
@@ -108,19 +108,23 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
     case WStype_DISCONNECTED:                         // if a client is disconnected, then type == WStype_DISCONNECTED
       Serial.println("Client " + String(num) + " disconnected");
       break;
+
     case WStype_CONNECTED:                            // if a client is connected, then type == WStype_CONNECTED
       Serial.println("Client " + String(num) + " connected");
       // optionally you can add code here what to do when connected
       break;
+
     case WStype_TEXT:                                 // if a client has sent data, then type == WStype_TEXT
       // try to decipher the JSON string received
       StaticJsonDocument<200> doc;                    // create a JSON container
       DeserializationError error = deserializeJson(doc, payload);
+
       if (error) {
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.f_str());
         return;
       }
+
       else {
         // JSON string was received correctly, so information can be retrieved:
         const char* l_type = doc["type"];
@@ -139,8 +143,9 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
           Serial.print("Updated Gantry Speed: ");
           Serial.println(newSpeed);
 
-          moveZ(pos, speed, zCurrent);            // update moveZ function
+          zCurrent = moveZ(pos, speed, zCurrent);            // update moveZ function
         }
+
         // if "New Pos" is received -> update Pos and call move function
         if(String(l_type) == "New Pos") {
           pos = int(l_value);
@@ -154,22 +159,20 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
           
           zCurrent = moveZ(pos, speed, zCurrent);  // update moveZ function
         }
+
         // if "zero" is recieved -> run gantry zeroing routine
         if(String(l_type) == "zero") {
           zCurrent = zeroZ(zCurrent);           
         }
+
         // if "led" is recieved -> toggle LED
         if(String(l_type) == "led") {
           ledStatus = ledToggle(ledStatus);
         }
 
-         // if "Home" is received -> call Home function
-        if(String(l_type) == "Home") {
-          //function goes here
-        }
+        Serial.println("");
+        reportVals(zCurrent);
       }
-      Serial.println("");
-      reportVals(zCurrent);
       break;
   }
 }
