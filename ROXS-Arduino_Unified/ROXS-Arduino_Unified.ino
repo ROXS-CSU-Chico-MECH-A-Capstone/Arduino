@@ -46,18 +46,24 @@ void setup()
   Serial.begin(9600);      // start serial port
 
   // initialize ethernet
-  Serial.println(F("Initializing ... "));
+  Serial.print(F("Initializing Ethernet... "));
   Ethernet.begin(mac, ip);
+  Serial.println("Ready");
 
   // Check for Ethernet hardware present
   if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-    Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+    Serial.println("Ethernet shield was not found.");
     while (true) {
       delay(1); // do nothing, no point running without Ethernet hardware
     }
+    Serial.println("Ethernet shield found.");
   }
   if (Ethernet.linkStatus() == LinkOFF) {
-    Serial.println("Ethernet cable is not connected.");
+    Serial.println("Ethernet cable is not connected... ");
+    while (true) {
+      delay(1);      
+    }
+    Serial.println("Ethernet cable connected.");
   }
 
   Serial.print(F("Server running at "));
@@ -109,8 +115,8 @@ void loop()
   //example Json
   char json[] = "{\"type\":\"move\",\"zValues\":[100.0,12.5]}";
 
-  StaticJsonDocument<64> cmd;  // initialize Json doc
-  DeserializationError error = deserializeJson(cmd, json);
+  StaticJsonDocument<64> doc;  // initialize Json doc
+  DeserializationError error = deserializeJson(doc, json);
 
   // Test if parsing succeeds.
   if (error) {
@@ -119,19 +125,23 @@ void loop()
     return;
   }
 
-  const char* type = cmd["type"];     // define string from Json doc
-  float gotoZ = cmd["zValues"][0];    // define z position float  
-  float speed = cmd["zValues"][1];    // define z speed
+  const char* type = doc["type"];     // define string from Json doc
+  float gotoZ = doc["zValues"][0];    // define z position float  
+  float speed = doc["zValues"][1];    // define z speed
 
   // Print values.
-  Serial.println(type);
-  Serial.println(gotoZ);
-  Serial.println(speed);
+  Serial.print("A command of type: ");
+  Serial.print(type);
+  Serial.print(" was recieved.");
 
   if (type == "zero") {
     zCurrent = zeroZ(zCurrent);  //run zeroing function
   }
   else if (type == "move") {
+    Serial.print("Target Z: ");
+    Serial.println(gotoZ);
+    Serial.print("Speed: ");
+    Serial.println(speed);
     zCurrent = moveZ(gotoZ, speed, zCurrent);
   }
 

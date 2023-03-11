@@ -1,4 +1,4 @@
-void stepMotor(int direction, float delay, float zCurrent)
+float stepMotor(int direction, float delay, float zCurrent)
 {
   // direction = 0 or 1
   // delay determines speed

@@ -11,7 +11,7 @@ float zeroZ(float zCurrent)
   // move motor down until limit switch activation
   while(limit == LOW)
   { 
-    stepMotor(0, delay, zCurrent);
+    zCurrent = stepMotor(0, delay, zCurrent);
   
     limit = digitalRead(limitPin);
   }
@@ -21,7 +21,7 @@ float zeroZ(float zCurrent)
   // move motor vertically offset distance
   for (int i = 0; i < offset; i++)
   {
-    stepMotor(1, delay, zCurrent);
+    zCurrent = stepMotor(1, delay, zCurrent);
   }
   
   limit = digitalRead(limitPin);
@@ -29,7 +29,7 @@ float zeroZ(float zCurrent)
   // move motor slowly to zero point
   while(limit == LOW)
   { 
-    stepMotor(0, slowDelay, zCurrent);
+    zCurrent = stepMotor(0, slowDelay, zCurrent);
   
     limit = digitalRead(limitPin);
   }
