@@ -1,4 +1,4 @@
-void stepMotor(int direction, float delay, int zCurrent)
+void stepMotor(int direction, float delay, float zCurrent)
 {
   // direction = 0 or 1
   // delay determines speed
@@ -21,11 +21,7 @@ void stepMotor(int direction, float delay, int zCurrent)
   digitalWrite(stepPin, LOW);
   delayMicroseconds(delay);
 
-  //temporarily holds data from vals
-  char charVal[10];            
-  dtostrf(zCurrent, 2, 1, charVal);
+  reportVals(zCurrent);
 
-  Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-  Udp.write(charVal);
-  Udp.endPacket();
+  return zCurrent;
 }

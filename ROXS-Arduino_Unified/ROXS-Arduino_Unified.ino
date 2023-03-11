@@ -1,13 +1,10 @@
 // Include libraries for JSON and Web Sockets
-#include <Arduino_JSON.h>
-
-#include <WebSocket.h>
-#include <WebSocketClient.h>
+#include <ArduinoJson.h>
 #include <WebSocketServer.h>
-#include <config.h>
-#include <platform.h>
-#include <utility.h>
+using namespace net;
 
+#include <config.h>
+#define NETWORK_CONTROLLER ETHERNET_CONTROLLER_W5100
 WebSocketServer server{3000};
 
 void jogZ();
@@ -19,6 +16,9 @@ void reportInt();
 // assign MAC and IP address for Arduino
 byte mac[] = {0x90, 0xA2, 0xDA, 0x0D, 0x48, 0xD3 };
 IPAddress ip(192,168,1,200);
+
+constexpr uint16_t port = 3000;
+WebSocketServer wss{port};
 
 unsigned int localPort = 8888; // local port to listen on
 
@@ -38,39 +38,13 @@ float gotoZ = 0;                // target Z position
 float zCurrent = 0;             // current Z position
 int exitJog = 0;
 
-int speed = 12.5;             //default speed
+float speed = 12.5;             //default speed
 
-String readString = "";
-String zeroString = "zero";
-String moveString = "move";
-String jogString = "jog";
-String exitString = "exit";
+
+const int capacity = JSON_OBJECT_SIZE(3) + 2*JSON_OBJECT_SIZE(1); StaticJsonDocument<capacity> doc;
 
 void setup() 
 {
-  Ethernet.begin(mac, ip); // start Ethernet
-
-  server.onConnection([](WebSocket &ws) {
-    const char message[]{ "Hello from Arduino server!" };
-    ws.send(WebSocket::DataType::TEXT, message, strlen(message));
-
-    ws.onClose([](WebSocket &ws, const WebSocket::CloseCode code,
-                 const char *reason, uint16_t length) {
-      // ...
-    });
-    ws.onMessage([](WebSocket &ws, const WebSocket::DataType dataType,
-                   const char *message, uint16_t length) {
-      // ...
-    });
-  });
-
-  server.begin();          //start Websocket Server
-
-  // open serial communications and wait for port to open:
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-
   // declare pins as Inputs/Outputs
   pinMode(stepPin, OUTPUT);
   pinMode(dirPin, OUTPUT);
@@ -78,7 +52,18 @@ void setup()
   pinMode(downPin, INPUT);
   pinMode(limitPin, INPUT);
   pinMode(runPin, INPUT);
-  }
+
+  Serial.begin(9600);      // start serial port
+
+  // initialize thernet
+  Serial.println(F("Initializing ... "));
+
+  // Ethernet.init(10);
+  Ethernet.init(53); // Mega2560
+  // Ethernet.init(5); // ESPDUINO-32
+  // Ethernet.init(PA4); // STM32
+
+  Ethernet.begin(mac, ip); // initialize 
 
   // Check for Ethernet hardware present
   if (Ethernet.hardwareStatus() == EthernetNoHardware) {
@@ -90,50 +75,45 @@ void setup()
   if (Ethernet.linkStatus() == LinkOFF) {
     Serial.println("Ethernet cable is not connected.");
   }
+
+  Serial.print(F("Server running at "));
+  Serial.print(Ethernet.localIP());
+  Serial.print(F(":"));
+  Serial.println(port);
+  Ethernet.begin(mac, ip); // start Ethernet
+
+  wss.begin();  // start webSocketServer
+
+
 }
 
 void loop() 
 {
-  server.listen();
-  // serial Monitoring
-  // if there's data available, read a packet
-  char json[] =
-      "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[48.756080,2.302038]}";
+  wss.listen();
 
-  // Deserialize the JSON document
-  DeserializationError error = deserializeJson(doc, json);
+  //example Json
+  char json[] = "{\"type\":\"move\",\"zValues\":[100.0,12.5]}";
+  StaticJsonDocument<64> cmd;  // initialize Json doc
+  DeserializationError error = deserializeJson(cmd, json);
 
-  // Test if parsing succeeds.
-  if (error) {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.f_str());
-    return;
-  }
-
-  // Fetch values.
-  //
-  // Most of the time, you can rely on the implicit casts.
-  // In other case, you can do doc["time"].as<long>();
-  const char* sensor = doc["sensor"];
-  long time = doc["time"];
-  double latitude = doc["data"][0];
-  double longitude = doc["data"][1];
+  const char* type = doc["type"]; // define string from Json doc
+  gotoZ = doc["zValues"][0];      // define z position float  
+  speed = doc["zValues"][1];      // define z speed
 
   // Print values.
-  Serial.println(sensor);
-  Serial.println(time);
-  Serial.println(latitude, 6);
-  Serial.println(longitude, 6);
+  Serial.println(type);
+  Serial.println(gotoZ);
+  Serial.println(speed);
 
-  if (readString == "zeroString")
+  if (type == "zero")
   {
     zeroZ(zCurrent);  //run zeroing function
   }
-  else if (readString == "moveString")
+  else if (type == "move")
   {
-    moveZ(zCurrent, gotoZ, speed);
+    moveZ(gotoZ, speed, zCurrent);
   }
-  else if (readString == "jogString")
+  else if (type == "jog")
   {
     jogZ(zCurrent);
   }

@@ -1,4 +1,4 @@
-void moveZ(float zCurrent, float gotoZ, float speed)
+void moveZ(float gotoZ, float speed, float zCurrent)
 {
   // zCurrent is the current known z position of gantry
   // gotoZ is the desired z postion

@@ -1,4 +1,4 @@
-void zeroZ(int zCurrent)
+void zeroZ(float zCurrent)
 {
   int delay = 4000;      // fast movement delay
   int slowDelay = 12000; // slow movement delay
@@ -33,13 +33,8 @@ void zeroZ(int zCurrent)
   
     limit = digitalRead(limitPin);
   }
-
-  /*
-  // report current z value
-  ss1 << zCurrent
-  std::string zReport = ss1.str()
-  Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-  Udp.write(zReport);
-  Udp.endPacket();
-  */
+  
+  zCurrent = 0;
+  reportVals(zCurrent);
+  return zCurrent;
 }
