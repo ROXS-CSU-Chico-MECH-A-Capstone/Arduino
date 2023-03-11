@@ -17,7 +17,7 @@
 //
 // Written by mo thunderz (last update: 27.08.2022)
 // Adapted by Jeremy West
-// Motor/LED/Value Reporting Functions written by Quincy Owyang
+// Motor/LED/Value Reporting Functions written by Quincy Owyang (last update 11.03.2023)
 // ---------------------------------------------------------------------------------------
 
 #include <ESP8266WiFi.h>                                     // needed to connect to WiFi
@@ -176,3 +176,15 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
       break;
   }
 }
+
+//Update all clients with other client's activities
+//Send Json back to ESP8266 for everyone else to see
+void sendJson(String l_type, String l_value) {
+    String jsonString = "";                           // create a JSON string for sending data to the client
+    StaticJsonDocument<200> doc;                      // create JSON container
+    JsonObject object = doc.to<JsonObject>();         // create a JSON Object
+    object["type"] = l_type;                          // write data into the JSON object -> I used "type" to identify if LED_selected or LED_intensity is sent and "value" for the actual value
+    object["value"] = l_value;
+    serializeJson(doc, jsonString);                   // convert JSON object to string
+    webSocket.broadcastTXT(jsonString);               // send JSON string to all clients
+} 
