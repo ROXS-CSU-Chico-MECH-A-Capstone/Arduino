@@ -1,5 +1,5 @@
 void reportVals(float zCurrent) {
-  int intensity = 0;        // voltage as intensity
+  int intensity = 0;          // voltage as intensity
   intensity = analogRead(A0); // read photoresistor voltage
 
   // convert intensity to string
@@ -8,6 +8,5 @@ void reportVals(float zCurrent) {
 
   String ex = "example";
   // serialize Json packet with intensity and zCurrent
-  uint16_t length = 15;
-  ws.send(string, ex, length);
+  // send packet with websocket
 }

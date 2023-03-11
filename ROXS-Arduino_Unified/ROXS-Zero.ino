@@ -1,4 +1,4 @@
-void zeroZ(float zCurrent)
+float zeroZ(float zCurrent)
 {
   int delay = 4000;      // fast movement delay
   int slowDelay = 12000; // slow movement delay

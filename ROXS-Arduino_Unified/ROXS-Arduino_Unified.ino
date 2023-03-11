@@ -129,10 +129,10 @@ void loop()
   Serial.println(speed);
 
   if (type == "zero") {
-    zeroZ(zCurrent);  //run zeroing function
+    zCurrent = zeroZ(zCurrent);  //run zeroing function
   }
   else if (type == "move") {
-    moveZ(gotoZ, speed, zCurrent);
+    zCurrent = moveZ(gotoZ, speed, zCurrent);
   }
 
   reportVals(zCurrent);
