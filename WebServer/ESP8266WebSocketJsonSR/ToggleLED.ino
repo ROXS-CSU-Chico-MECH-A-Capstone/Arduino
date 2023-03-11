@@ -1,3 +1,4 @@
+// Toggle LED On/Off (Default Off)
 bool ledToggle(bool ledStatus) {
   // checks to see if LED is on/off and reverses value
   if (ledStatus == false) {

@@ -1,3 +1,4 @@
+// Step motor once in (Direction Up/Down) with (Delay) between impulses
 float stepMotor(int direction, float delay, float zCurrent) {
   // direction = 0 or 1
   // delay determines speed

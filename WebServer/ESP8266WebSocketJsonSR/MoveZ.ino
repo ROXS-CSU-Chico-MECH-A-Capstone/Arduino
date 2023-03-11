@@ -1,3 +1,4 @@
+// Move photoresistor gantry to (Position) at (Speed)
 float moveZ(float gotoZ, float speed, float zCurrent){
   // zCurrent is the current known z position of gantry
   // gotoZ is the desired z postion
@@ -17,5 +18,12 @@ float moveZ(float gotoZ, float speed, float zCurrent){
       stepMotor(dir, delay, zCurrent);
     }
   }
+
+  String newZ = "";
+  newZ.concat(zCurrent);
+  Serial.print("New Gantry Position: +");
+  Serial.print(newZ);
+  Serial.println("mm");
+
   return zCurrent; // return updated z value
 }

@@ -20,10 +20,11 @@
 // Motor/LED/Value Reporting Functions written by Quincy Owyang (last update 11.03.2023)
 // ---------------------------------------------------------------------------------------
 
-#include <ESP8266WiFi.h>                                     // needed to connect to WiFi
-#include <ESP8266WebServer.h>                                // needed to create a simple webserver (make sure tools -> board is set to ESP32, otherwise you will get a "WebServer.h: No such file or directory" error)
-#include <WebSocketsServer.h>                         // needed for instant communication between client and server through Websockets
-#include <ArduinoJson.h>                              // needed for JSON encapsulation (send multiple variables with one string)
+#include <ESP8266WiFi.h>       // needed to connect to WiFi
+#include <ESP8266WebServer.h>  // needed to create a simple webserver (make sure tools -> board is set to ESP32, 
+                               //   otherwise you will get a "WebServer.h: No such file or directory" error)
+#include <WebSocketsServer.h>  // needed for instant communication between client and server through Websockets
+#include <ArduinoJson.h>       // needed for JSON encapsulation (send multiple variables with one string)
 
 // create prototypes for functions
 void moveZ();
@@ -33,12 +34,12 @@ void reportVals();
 bool ledToggle();
 
 // SSID and password of Wifi connection:
-//const char* ssid = "WhatsBetterThan25";
-//const char* password = "welding26";
+// const char* ssid = "WhatsBetterThan25";
+// const char* password = "welding26";
 const char* ssid = "MPJAC82";
 const char* password = "N0t14u2c.82";
-//const char* ssid = "ROXS24";
-//const char*password= "capstone";
+// const char* ssid = "ROXS24";
+// const char*password= "capstone";
 
 // Initial constant paramters
 float speed = 0;        // in mm/s
@@ -57,7 +58,8 @@ const int photoPin = A0;   // from photoresistor circuit
 String  webpage = "<!DOCTYPE html><html> <head> <title>ESP8266 WifiServer</title> </head> <body> <h1>ESP8266 WifiServer</h1><p><h2>Input Position</h2></p> <div> <span> <input type='number' id='pos' placeholder='Enter Position' name='Name' maxlength='4'/> <input type='number' id='speed' placeholder='Enter Speed' name='Name' maxlength='4'/> </span> </div> <div> <input type='submit' id='submit1' value='Update Position'> <input type='submit' id='submit2' value='Update Speed'> <input type='submit' id='submit3' value='Home'> </div> <div> <label for='output1'>Called Position</label> <p class='output' id='output1'></p> <label for='output2'>Called Speed</label> <p class='output' id='output2'></p> </div> </body> <script> document.getElementById('submit1').addEventListener('click', UpdatePos); document.getElementById('submit2').addEventListener('click', UpdateSpeed); document.getElementById('submit3').addEventListener('click', Home); var out1 = document.getElementById('output1'); var out2 = document.getElementById('output2'); var pos = document.getElementById('pos'); var speed = document.getElementById('speed'); var Socket; function init() { Socket = new WebSocket('ws://' + window.location.hostname + ':81/'); Socket.onmessage = function(event) { processCommand(event); }; } function UpdatePos () { var l_pos= pos.value; out1.innerHTML =l_pos; console.log(l_pos); var msg = { type: 'New Pos', value: l_pos}; Socket.send(JSON.stringify(msg)); } function UpdateSpeed () { var l_speed= speed.value; out2.innerHTML =l_speed; console.log(l_speed); var msg = { type: 'New Speed', value: l_speed}; Socket.send(JSON.stringify(msg)); } function Home () { console.log('Home called'); var msg = { type: 'Home'}; Socket.send(JSON.stringify(msg)); } function processCommand(event) { var obj = JSON.parse(event.data); var type = obj.type; if (type.localeCompare('New Pos') == 0) { var l_pos = parseInt(obj.value); console.log(l_pos); out1.innerHTML = l_pos; } else if (type.localeCompare('New Speed') == 0) { var l_speed = parseInt(obj.value); console.log(l_speed); out2.innerHTML = l_speed; } document.getElementById('pos').innerHTML = obj.pos; document.getElementById('speed').innerHTML = obj.speed; console.log(obj.pos); console.log(obj.speed); } window.onload = function(event) { init(); } </script></html>";
 
 // The JSON library uses static memory, so this will need to be allocated:
-// -> in the video I used global variables for "doc_tx" and "doc_rx", however, I now changed this in the code to local variables instead "doc" -> Arduino documentation recomends to use local containers instead of global to prevent data corruption
+// -> in the video I used global variables for "doc_tx" and "doc_rx", however, I now changed this in the code to local variables
+//   instead "doc" -> Arduino documentation recomends to use local containers instead of global to prevent data corruption
 
 // We want to periodically send values to the clients, so we need to define an "interval" and remember the last time we sent data to the client (with "previousMillis")
 int interval = 1000;                                  // send data to the client every 1000ms -> 1s
@@ -92,8 +94,8 @@ void setup() {
 
   server.begin();                                     // start server
   webSocket.begin();                                  // start websocket
-  webSocket.onEvent(webSocketEvent);                  // define a callback function -> what does the ESP32 need to do when an event from the websocket is received? -> run function "webSocketEvent()"
-  Serial.print("System Nominal");
+  webSocket.onEvent(webSocketEvent);                  // define a callback function -> what does the ESP32 need to do when an 
+  Serial.print("System Nominal");                     //   event from the websocket is received? -> run function "webSocketEvent()"
   Serial.print("");
 }
 
@@ -102,7 +104,9 @@ void loop() {
   webSocket.loop();                                   // Update function for the webSockets 
 }
 
-void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {      // the parameters of this callback function are always the same -> num: id of the client who send the event, type: type of message, payload: actual data sent and length: length of payload
+// the parameters of this callback function are always the same -> num: id of the client who send the event, 
+//   type: type of message, payload: actual data sent and length: length of payload
+void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
   Serial.print("Websocket Event Detected");
   switch (type) {                                     // switch on the type of information sent
     case WStype_DISCONNECTED:                         // if a client is disconnected, then type == WStype_DISCONNECTED
@@ -141,7 +145,8 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
           String newSpeed = "";
           newSpeed.concat(l_value);
           Serial.print("Updated Gantry Speed: ");
-          Serial.println(newSpeed);
+          Serial.print(newSpeed);
+          Serial.print("mm/s");
 
           zCurrent = moveZ(pos, speed, zCurrent);            // update moveZ function
         }
@@ -151,7 +156,7 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
           pos = int(l_value);
           sendJson("New Pos", String(l_value));
 
-          //report change in z target to serial
+          // report change in z target to serial
           String zTarget = "";
           zTarget.concat(l_value);
           Serial.print("Updated Target Z Value: ");
@@ -177,14 +182,14 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
   }
 }
 
-//Update all clients with other client's activities
-//Send Json back to ESP8266 for everyone else to see
+// Update all clients with other client's activities
+// Send Json back to ESP8266 for everyone else to see
 void sendJson(String l_type, String l_value) {
     String jsonString = "";                           // create a JSON string for sending data to the client
     StaticJsonDocument<200> doc;                      // create JSON container
     JsonObject object = doc.to<JsonObject>();         // create a JSON Object
-    object["type"] = l_type;                          // write data into the JSON object -> I used "type" to identify if LED_selected or LED_intensity is sent and "value" for the actual value
-    object["value"] = l_value;
+    object["type"] = l_type;                          // write data into the JSON object -> I used "type" to identify if 
+    object["value"] = l_value;                        //   LED_selected or LED_intensity is sent and "value" for the actual value
     serializeJson(doc, jsonString);                   // convert JSON object to string
     webSocket.broadcastTXT(jsonString);               // send JSON string to all clients
 } 

@@ -1,12 +1,12 @@
+// Zero photoresistor gantry with limit switch
 float zeroZ(float zCurrent)
 {
   // report zeroing routine to serial
   Serial.println("Running Zeroing Routine...");
 
-  int delay = 4000;      // fast movement delay
-  int slowDelay = 12000; // slow movement delay
-  int offset = 4 * 100;  // vertical offset distance
-  float ss1 = 0;
+  int delay = 4000;      // fast movement delay (12.5mm/s)
+  int slowDelay = 12000; // slow movement delay (4.17mm/s)
+  int offset = 4 * 100;  // vertical offset distance (4mm)
   
   // read input pin values
   int limit = digitalRead(limitPin);
@@ -17,7 +17,7 @@ float zeroZ(float zCurrent)
   
     limit = digitalRead(limitPin);
   }
-  
+
   delayMicroseconds(250);
   
   // move motor vertically offset distance
@@ -38,7 +38,7 @@ float zeroZ(float zCurrent)
   reportVals(zCurrent);
 
   // report zeroing routine to serial
-  Serial.println("Zeroing Routine Finished");
+  Serial.println("Zeroing Routine Complete");
 
   return zCurrent; // return updated z value
 }

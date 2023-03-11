@@ -1,12 +1,13 @@
+// Report current Z value and photoresistor intensity over websocket server
 void reportVals(float zCurrent) {
-  int intensity = 0;          // voltage as intensity
-  intensity = analogRead(A0); // read photoresistor voltage
+  int intensity = 0;           // voltage as intensity
+  intensity = analogRead(A0);  // read photoresistor voltage (0-1V on ESP8266)
 
   String jsonString = "";                           // create a JSON string for sending data to the client
   StaticJsonDocument<200> doc;                      // create JSON container
   JsonObject object = doc.to<JsonObject>();         // create a JSON Object
-  object["Intensity"] = intensity;                  // write data into the JSON object -> I used "type" to identify if LED_selected or LED_intensity is sent and "value" for the actual value
-  object["CurrentZ"] = zCurrent;
+  object["Intensity"] = intensity;                  // write intensity into JSON object
+  object["CurrentZ"] = zCurrent;                    // write current Z value into JSON object
   serializeJson(doc, jsonString);                   // convert JSON object to string
-  webSocket.broadcastTXT(jsonString); 
+  webSocket.broadcastTXT(jsonString);               // send JSON object over websocket server
 }
