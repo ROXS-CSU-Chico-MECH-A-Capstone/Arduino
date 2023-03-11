@@ -1,5 +1,4 @@
-void moveZ(float zCurrent, float gotoZ, float speed)
-{
+void moveZ(float zCurrent, float gotoZ, float speed){
   // zCurrent is the current known z position of gantry
   // gotoZ is the desired z postion
 
@@ -9,8 +8,7 @@ void moveZ(float zCurrent, float gotoZ, float speed)
   // initialize direction pin output
   int dir  = 0;
   
-  if (gotoZ != zCurrent)
-  {
+  if (gotoZ != zCurrent){
     // set gantry direction
     if (gotoZ > zCurrent)
     {

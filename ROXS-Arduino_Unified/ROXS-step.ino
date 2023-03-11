@@ -1,16 +1,13 @@
-void stepMotor(int direction, float delay, int zCurrent)
-{
+void stepMotor(int direction, float delay, int zCurrent){
   // direction = 0 or 1
   // delay determines speed
   
   // set direction of motor
-  if (direction == 0)
-  {
+  if (direction == 0){
     digitalWrite(dirPin, LOW);
     zCurrent -= 0.1; // mm
   }
-  else
-  {
+  else {
     digitalWrite(dirPin, HIGH);
     zCurrent += 0.1; // mm
   }

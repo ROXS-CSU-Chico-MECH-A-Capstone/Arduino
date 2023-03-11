@@ -1,6 +1,5 @@
-void reportInt()
-{
-  int intensity = 0;        // voltage as intensity
+void reportInt(){
+  int intensity = 0;          // voltage as intensity
   intensity = analogRead(A0); // read photoresistor voltage
 
   // convert intensity to string

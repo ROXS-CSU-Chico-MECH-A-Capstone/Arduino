@@ -29,8 +29,8 @@ const int limitPin = 8;       // z = 0 limit switch
 const int runPin = 6;         // run zero function
 
 //Go to Z Parameters
-float gotoZ = 0;                // target Z position
-float zCurrent = 0;             // current Z position
+float gotoZ = 0;              // target Z position
+float zCurrent = 0;           // current Z position
 int exitJog = 0;
 
 int speed = 12.5;             //default speed
@@ -41,8 +41,7 @@ String moveString = "move";
 String jogString = "jog";
 String exitString = "exit";
 
-void setup() 
-{
+void setup() {
   // declare pins as Inputs/Outputs
   pinMode(stepPin, OUTPUT);
   pinMode(dirPin, OUTPUT);
@@ -75,22 +74,18 @@ void setup()
   Udp.begin(localPort);
 }
 
-void loop() 
-{
+void loop() {
   // serial Monitoring
   // if there's data available, read a packet
   int packetSize = Udp.parsePacket();
-  if (packetSize) 
-  {
+  if (packetSize) {
     Serial.print("Received packet of size ");
     Serial.println(packetSize);
     Serial.print("From ");
     IPAddress remote = Udp.remoteIP();
-    for (int i=0; i < 4; i++) 
-    {
+    for (int i=0; i < 4; i++) {
       Serial.print(remote[i], DEC);
-      if (i < 3) 
-      {
+      if (i < 3) {
         Serial.print(".");
       }
     }
@@ -109,16 +104,13 @@ void loop()
     Udp.endPacket();
   }
 
-  if (readString == "zeroString")
-  {
+  if (readString == "zeroString"){
     zeroZ(zCurrent);  //run zeroing function
   }
-  else if (readString == "moveString")
-  {
+  else if (readString == "moveString") {
     moveZ(zCurrent, gotoZ, speed);
   }
-  else if (readString == "jogString")
-  {
+  else if (readString == "jogString") {
     jogZ(zCurrent);
   }
 }
