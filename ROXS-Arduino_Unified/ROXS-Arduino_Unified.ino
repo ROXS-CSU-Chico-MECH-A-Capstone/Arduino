@@ -1,4 +1,5 @@
 // Include libraries for JSON and Web Sockets
+#include <Ethernet.h>
 #include <ArduinoJson.h>
 #include <WebSocketServer.h>
 using namespace net;
@@ -7,14 +8,8 @@ using namespace net;
 #define NETWORK_CONTROLLER ETHERNET_CONTROLLER_W5100
 WebSocketServer server{3000};
 
-void jogZ();
-void moveZ();
-void zeroZ();
-void stepMotor();
-void reportInt();
-
 // assign MAC and IP address for Arduino
-byte mac[] = {0x90, 0xA2, 0xDA, 0x0D, 0x48, 0xD3 };
+byte mac[] = {0x90, 0xA2, 0xDA, 0x0D, 0x48, 0xD3};
 IPAddress ip(192,168,1,200);
 
 constexpr uint16_t port = 3000;
@@ -22,8 +17,11 @@ WebSocketServer wss{port};
 
 unsigned int localPort = 8888; // local port to listen on
 
-char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet
-char ReplyBuffer[] = "acknowledged";        // a string to send back
+void jogZ();
+void moveZ();
+void zeroZ();
+void stepMotor();
+void reportInt();
 
 //Define digital pins
 const int dirPin = 2;         // driver direction control
@@ -33,15 +31,7 @@ const int upPin = 7;          // driver direction input
 const int limitPin = 8;       // z = 0 limit switch
 const int runPin = 6;         // run zero function
 
-//Go to Z Parameters
-float gotoZ = 0;                // target Z position
-float zCurrent = 0;             // current Z position
-int exitJog = 0;
-
-float speed = 12.5;             //default speed
-
-
-const int capacity = JSON_OBJECT_SIZE(3) + 2*JSON_OBJECT_SIZE(1); StaticJsonDocument<capacity> doc;
+float zCurrent = 0;
 
 void setup() 
 {
@@ -55,15 +45,9 @@ void setup()
 
   Serial.begin(9600);      // start serial port
 
-  // initialize thernet
+  // initialize ethernet
   Serial.println(F("Initializing ... "));
-
-  // Ethernet.init(10);
-  Ethernet.init(53); // Mega2560
-  // Ethernet.init(5); // ESPDUINO-32
-  // Ethernet.init(PA4); // STM32
-
-  Ethernet.begin(mac, ip); // initialize 
+  Ethernet.begin(mac, ip);
 
   // Check for Ethernet hardware present
   if (Ethernet.hardwareStatus() == EthernetNoHardware) {
@@ -82,39 +66,74 @@ void setup()
   Serial.println(port);
   Ethernet.begin(mac, ip); // start Ethernet
 
+  wss.onConnection([](WebSocket &ws) {
+    const auto protocol = ws.getProtocol();
+    if (protocol) {
+      Serial.print(F("Client protocol: "));
+      Serial.println(protocol);
+    }
+
+  ws.onMessage([](WebSocket &ws, const WebSocket::DataType dataType,
+                  const char *message, uint16_t length) {
+    switch (dataType) {
+    case WebSocket::DataType::TEXT:
+      Serial.print(F("Received: "));
+      Serial.println(message);
+      break;
+    case WebSocket::DataType::BINARY:
+      Serial.println(F("Received binary data"));
+      break;
+    }
+
+    ws.send(dataType, message, length);
+  });
+
+  ws.onClose([](WebSocket &, const WebSocket::CloseCode, const char *,
+                uint16_t) { Serial.println(F("Disconnected")); });
+
+    Serial.print(F("New client: "));
+    Serial.println(ws.getRemoteIP());
+
+    const char message[]{"Hello from Arduino server!"};
+    ws.send(WebSocket::DataType::TEXT, message, strlen(message));
+  });
+
   wss.begin();  // start webSocketServer
-
-
 }
 
 void loop() 
 {
   wss.listen();
+  //recieve packet
 
   //example Json
   char json[] = "{\"type\":\"move\",\"zValues\":[100.0,12.5]}";
+
   StaticJsonDocument<64> cmd;  // initialize Json doc
   DeserializationError error = deserializeJson(cmd, json);
 
-  const char* type = doc["type"]; // define string from Json doc
-  gotoZ = doc["zValues"][0];      // define z position float  
-  speed = doc["zValues"][1];      // define z speed
+  // Test if parsing succeeds.
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
+  }
+
+  const char* type = cmd["type"];     // define string from Json doc
+  float gotoZ = cmd["zValues"][0];    // define z position float  
+  float speed = cmd["zValues"][1];    // define z speed
 
   // Print values.
   Serial.println(type);
   Serial.println(gotoZ);
   Serial.println(speed);
 
-  if (type == "zero")
-  {
+  if (type == "zero") {
     zeroZ(zCurrent);  //run zeroing function
   }
-  else if (type == "move")
-  {
+  else if (type == "move") {
     moveZ(gotoZ, speed, zCurrent);
   }
-  else if (type == "jog")
-  {
-    jogZ(zCurrent);
-  }
+
+  reportVals(zCurrent);
 }

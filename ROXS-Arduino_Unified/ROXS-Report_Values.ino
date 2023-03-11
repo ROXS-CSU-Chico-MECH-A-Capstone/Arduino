@@ -6,6 +6,8 @@ void reportVals(float zCurrent) {
   char charVal[10];            
   dtostrf(intensity, 2, 1, charVal);
 
+  String ex = "example";
   // serialize Json packet with intensity and zCurrent
-  // send packet with websocket
+  uint16_t length = 15;
+  ws.send(string, ex, length);
 }

@@ -22,4 +22,5 @@ void moveZ(float gotoZ, float speed, float zCurrent)
       stepMotor(dir, delay, zCurrent);
     }
   }
+  return zCurrent;
 }

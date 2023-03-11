@@ -22,6 +22,5 @@ void stepMotor(int direction, float delay, float zCurrent)
   delayMicroseconds(delay);
 
   reportVals(zCurrent);
-
   return zCurrent;
 }
