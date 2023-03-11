@@ -17,11 +17,10 @@ WebSocketServer wss{port};
 
 unsigned int localPort = 8888; // local port to listen on
 
-void jogZ();
 void moveZ();
-void zeroZ();
-void stepMotor();
-void reportInt();
+float zeroZ();
+float stepMotor();
+void reportVals();
 
 //Define digital pins
 const int dirPin = 2;         // driver direction control
