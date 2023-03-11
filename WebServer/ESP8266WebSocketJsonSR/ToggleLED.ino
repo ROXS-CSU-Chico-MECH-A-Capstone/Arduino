@@ -5,10 +5,12 @@ bool ledToggle(bool ledStatus) {
     ledStatus = true;
     Serial.println("LED: On");
   }
-  else{
+  
+  else {
     digitalWrite(ledPin, LOW);
     ledStatus = false;
     Serial.println("LED: Off");
   }
+
   return ledStatus; // return updated ledStatus
 }
