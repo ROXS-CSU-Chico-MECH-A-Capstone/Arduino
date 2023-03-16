@@ -27,6 +27,8 @@
 #include <ArduinoJson.h>       // needed for JSON encapsulation (send multiple variables with one string)
 #include <ESP8266WebServer.h>  // needed to create a simple webserver (make sure tools -> board is set to ESP32, 
                                //   otherwise you will get a "WebServer.h: No such file or directory" error)
+#include <AccelStepper.h>              // adds acceleration control
+#include <AccelStepperWithDistances.h> // steps to mm conversion
 
 // create prototypes for functions
 void moveZ();
@@ -72,7 +74,7 @@ unsigned long previousMillis = 0;                     // we use the "millis()" c
                                                       //   and this will output an unsigned long
 
 // Initialization of webserver and websocket
-ESP8266WebServer server(80);                                 // the server uses port 80 (standard port for websites
+ESP8266WebServer server(80);                          // the server uses port 80 (standard port for websites
 WebSocketsServer webSocket = WebSocketsServer(81);    // the websocket uses port 81 (standard port for websockets
 
 void setup() {
@@ -81,6 +83,12 @@ void setup() {
   pinMode(dirPin, OUTPUT);
   pinMode(ledPin, OUTPUT);
   pinMode(limitPin, INPUT);
+
+  stepper.setMaxSpeed(1250);         // max speed of stepper motor (n/100) mm/s
+  stepper.setSpeed(1250);            
+  stepper.setAcceleration(500);      // steps/s^2
+  stepper.setStepsPerRotation(200);
+  stepper.setDistancePerRotation(2); // in mm
 
   Serial.begin(9600);                                 // init serial port for debugging
  
