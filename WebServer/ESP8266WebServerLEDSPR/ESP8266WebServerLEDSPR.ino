@@ -29,15 +29,16 @@
 // SSID and password of Wifi connection:
 //const char* ssid = "WhatsBetterThan25";
 //const char* password = "welding26";
-//const char* ssid = "MPJAC82";
-//const char*password= "N0t14u2c.82";
-const char* ssid = "ROXS24";
- const char*password= "capstone";
+const char* ssid = "MPJAC82";
+const char*password= "N0t14u2c.82";
+//const char* ssid = "ROXS24";
+//const char*password= "capstone";
 
 // Initial constant paramters
 float speed=1;
 float pos=1;
 
+int photoresistorPin = A0;
 
 #define NUM_LEDS  23
 #define LED_PIN   D2
@@ -88,6 +89,22 @@ void setup() {
 void loop() {
   server.handleClient();                              // Needed for the webserver to handle all clients
   webSocket.loop();                                   // Update function for the webSockets 
+
+  unsigned long now = millis();                       // read out the current "time" ("millis()" gives the time in ms since the Arduino started)
+  if ((unsigned long)(now - previousMillis) > interval) { // check if "interval" ms has passed since last time the clients were updated
+    
+    String jsonString = "";                           // create a JSON string for sending data to the client
+    StaticJsonDocument<200> doc;                      // create a JSON container
+    JsonObject object = doc.to<JsonObject>();  // create a JSON Object
+    object["type"] = const char* l_type;          // write data into the JSON object -> I used "type" to identify if LED_selected or LED_intensity is sent and "value" for the actual value
+    object["value"] = const char* l_value;
+  
+    serializeJson(doc, jsonString);                   // convert JSON object to string
+    Serial.println(jsonString);                       // print JSON string to console for debug purposes (you can comment this out)
+    webSocket.broadcastTXT(jsonString);               // send JSON string to clients
+    
+    previousMillis = now;                             // reset previousMillis
+  }
 }
 
 void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {      // the parameters of this callback function are always the same -> num: id of the client who send the event, type: type of message, payload: actual data sent and length: length of payload
@@ -115,7 +132,7 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
         const char* l_value = doc["value"];
         Serial.println("Type: " + String(l_type));
         Serial.println("Value: " + String(l_value));
-
+        
         // if "New Speed" is received -> update speed constant
         if(String(l_type) == "New Speed") {
           speed = int(l_value);
@@ -124,7 +141,6 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
           FastLED.show();
           sendJson("New Speed", String(l_value));
           //function goes here
-          
           
         }
         
@@ -137,12 +153,19 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
           FastLED.show();
 
         }
-
+        
          // if "Home" is received -> call Home function
         if(String(l_type) == "Home") {
           //function goes here
           Gradient();
           FastLED.show();
+        }
+
+          // if "Home" is received -> call Home function
+        if(String(l_type) == "Intensity") {
+          //function goes here
+          l_type=Inte
+
         }
       }
       Serial.println("");
