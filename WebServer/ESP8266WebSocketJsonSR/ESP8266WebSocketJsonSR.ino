@@ -38,10 +38,10 @@ bool ledToggle();
 // SSID and password of Wifi connection:
 // const char* ssid = "WhatsBetterThan25";
 // const char* password = "welding26";
-const char* ssid = "MPJAC82";
-const char* password = "N0t14u2c.82";
-// const char* ssid = "ROXS24";
-// const char*password= "capstone";
+// const char* ssid = "MPJAC82";
+// const char* password = "N0t14u2c.82";
+const char* ssid = "ROXS24";
+const char*password= "capstone";
 
 // Initial constant paramters
 float speed = 0;        // in mm/s
