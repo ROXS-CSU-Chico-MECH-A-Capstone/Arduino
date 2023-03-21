@@ -108,6 +108,7 @@ void setup() {
 void loop() {
   server.handleClient();                              // Needed for the webserver to handle all clients
   webSocket.loop();                                   // Update function for the webSockets 
+  reportVals(zCurrent);                                  
 }
 
 // the parameters of this callback function are always the same -> num: id of the client who send the event, 
@@ -182,7 +183,6 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
         }
 
         Serial.println("");
-        reportVals(zCurrent);
       }
       break;
   }

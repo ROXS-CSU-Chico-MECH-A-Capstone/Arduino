@@ -39,6 +39,7 @@ float zeroZ(float zCurrent)
 
   // report zeroing routine to serial
   Serial.println("Zeroing Routine Complete");
+  Serial.println("New Gantry Position = +0.00mm");
 
   return zCurrent; // return updated z value
 }
