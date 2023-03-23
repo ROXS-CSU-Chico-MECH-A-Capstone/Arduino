@@ -50,8 +50,8 @@ float zCurrent = 463;   // in mm
 bool ledStatus = false; // false = off, true = on
 
 // Define pinouts for digital in/out & analog read
-const int stepPin = 16;     // to step pin on motor driver
-const int dirPin = 5;      // to direction pin on motor driver
+const int stepPin = 5;     // to step pin on motor driver
+const int dirPin = 4;      // to direction pin on motor driver
 const int limitPin = 9;   // from limit switch input
 const int ledPin = 10;     // to relay for LED
 const int photoPin = A0;   // from photoresistor circuit
