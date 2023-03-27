@@ -27,7 +27,7 @@ import json
 
 url = "http://192.168.0.99/values"# Replace with the actual IP address of your ESP8266 module
 
-payload = {"speed": 20,"goalpos":300}
+payload = {"speed": 10,"goalpos":500}
 headers = {"Content-Type": "application/json"}
 
 response = requests.patch(url, data=json.dumps(payload), headers=headers)
@@ -38,3 +38,34 @@ elif response.status_code == 204:
     print("Value updated successfully")
 else:
     print("Error: ", response.status_code)
+    
+    #%% Update Value
+            
+    import requests 
+    import json
+
+    url = "http://192.168.0.99/values"# Replace with the actual IP address of your ESP8266 module
+
+    payload = {"ledStatus": "True"}
+    headers = {"Content-Type": "application/json"}
+
+    response = requests.patch(url, data=json.dumps(payload), headers=headers)
+
+    if response.status_code == 200:
+        print("Value updated successfully")
+    elif response.status_code == 204:
+        print("Value updated successfully")
+    else:
+        print("Error: ", response.status_code)
+        
+        
+    #check
+    response = requests.get(url)
+    if response.status_code == 200:
+       ledStatus = response.json()["ledStatus"]
+
+       print("LED ", ledStatus)
+    else:
+       print("Error: ", response.status_code)
+            
+            

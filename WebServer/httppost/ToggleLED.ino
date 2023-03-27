@@ -3,14 +3,14 @@ bool ledToggle(bool ledStatus) {
   // Relay is normally open, so high is on and low is off
   // checks to see if LED is on/off and reverses value
 
-  if (ledStatus == false) {
+  if (ledStatus == true) {
     digitalWrite(ledPin, HIGH);
-    ledStatus = true;
+    //ledStatus = true;
     Serial.println("LED: On");
   }
   else {
     digitalWrite(ledPin, LOW);
-    ledStatus = false;
+    //ledStatus = false;
     Serial.println("LED: Off");
   }
 

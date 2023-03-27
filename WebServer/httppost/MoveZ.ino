@@ -9,11 +9,13 @@ float moveZ(float gotoZ, float speed, float zCurrent){
   
   // initialize direction pin output
   int dir  = 0;
-  
+  Serial.print(dir);
   if (gotoZ != zCurrent) {
     // set gantry direction up/down
     if (gotoZ > zCurrent) {
       dir = 1;  // change to up if target > current position
+      
+      Serial.print(dir);
     }   
     for (float i = 0; i < disp; i=i+0.1) { 
 
@@ -28,6 +30,8 @@ float moveZ(float gotoZ, float speed, float zCurrent){
   Serial.print("New Gantry Position: +");
   Serial.print(newZ);
   Serial.println("mm");
+  Serial.print("Final dir is");
+  Serial.println(dir);
 
   return zCurrent; // return updated z value
 }
