@@ -22,12 +22,12 @@ else:
         
 #%% Update Value
         
-import requests
+import requests 
 import json
 
 url = "http://192.168.0.99/values"# Replace with the actual IP address of your ESP8266 module
 
-payload = {"speed": 20,"goalpos": 52}
+payload = {"speed": 20,"goalpos":300}
 headers = {"Content-Type": "application/json"}
 
 response = requests.patch(url, data=json.dumps(payload), headers=headers)

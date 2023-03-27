@@ -18,7 +18,7 @@ float stepMotor(int direction, float delay, float zCurrent) {
     zCurrent += 0.1; // mm
     Serial.print(zCurrent);
   }
-  
+   
   // step motor once
   digitalWrite(stepPin, HIGH);
   delayMicroseconds(delay);

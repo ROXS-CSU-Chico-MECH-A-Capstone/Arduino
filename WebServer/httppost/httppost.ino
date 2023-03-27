@@ -11,10 +11,10 @@ float stepMotor();
 bool ledToggle();
 //void handleGetPR();
 
-const char* ssid = "MPJAC82";
-const char*password= "N0t14u2c.82";
-//const char* ssid = "ROXS24";
-//const char*password= "capstone";
+//const char* ssid = "MPJAC82";
+//const char*password= "N0t14u2c.82";
+const char* ssid = "ROXS24";
+const char*password= "capstone";
 
 
 
@@ -89,6 +89,12 @@ void handlePatch() {
 }
 
 void setup() {
+
+  pinMode(stepPin, OUTPUT);
+  pinMode(dirPin, OUTPUT);
+  pinMode(ledPin, OUTPUT);
+  pinMode(limitPin, INPUT);
+  
   Serial.begin(115200);
   WiFi.begin(ssid, password);
 
