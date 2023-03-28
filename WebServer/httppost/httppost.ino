@@ -4,18 +4,17 @@
 #include <ESP8266WebServer.h>
 #include <ArduinoJson.h>
 
+//const char* ssid = "MPJAC82";
+//const char*password= "N0t14u2c.82";
+const char* ssid = "ROXS24";
+const char*password= "capstone";
+
 // create prototypes for functions
 void moveZ();
 float zeroZ();
 float stepMotor();
 bool ledToggle();
 //void handleGetPR();
-
-//const char* ssid = "MPJAC82";
-//const char*password= "N0t14u2c.82";
-const char* ssid = "ROXS24";
-const char*password= "capstone";
-
 
 
 // Initial constant paramters
@@ -38,7 +37,7 @@ ESP8266WebServer server(80);
 
 
 
-//Handle get requests for data
+//________________Handle get requests for data______________________________________________
 void handleGet() {
   StaticJsonDocument<400> jsonDoc;
   jsonDoc["speed"] = speed;
@@ -52,24 +51,8 @@ void handleGet() {
   server.send(200, "application/json", jsonStr);
 }
 
-void handlePut() {
-  String body = server.arg("plain");
-  StaticJsonDocument<400> jsonDoc;
-  DeserializationError error = deserializeJson(jsonDoc, body);
-  if (error) {
-    server.send(400, "text/plain", "Invalid JSON");
-    return;
-  }
-  if (jsonDoc.containsKey("speed")) {
-    speed = jsonDoc["speed"];
-  }
-  if (jsonDoc.containsKey("goalpos")) {
-    goalpos = jsonDoc["goalpos"];
-  }
-  server.send(204);
-}
 
-//Handle patch requests for data updates and calling functions
+//___________Handle patch requests for data updates and calling functions________________________________________________
 void handlePatch() {
   String body = server.arg("plain");
   StaticJsonDocument<400> jsonDoc;
@@ -81,16 +64,18 @@ void handlePatch() {
   if (jsonDoc.containsKey("speed")) {
     speed = jsonDoc["speed"];
   }
-  if (jsonDoc.containsKey("ledStatus")) {
-    ledStatus = jsonDoc["ledStatus"];
-    ledStatus=ledToggle(ledStatus);
-
-  }
+  
   if (jsonDoc.containsKey("goalpos")) {
     goalpos = jsonDoc["goalpos"];
     //
     zCurrent=moveZ(goalpos,speed,zCurrent);
   }
+  
+    if (jsonDoc.containsKey("ledStatus")) {
+    ledStatus = jsonDoc["ledStatus"];
+    ledStatus=ledToggle(ledStatus);
+  }
+  
   if (jsonDoc.containsKey("zero")) {
     zero = jsonDoc["zero"];
     zCurrent=zeroZ(zCurrent);
@@ -124,11 +109,12 @@ void setup() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
   server.on("/values", HTTP_GET, handleGet);
-  server.on("/values", HTTP_PUT, handlePut);
   server.on("/values", HTTP_PATCH, handlePatch);
   server.begin();
 }
 
 void loop() {
   server.handleClient();
+  Serial.println(digitalRead(limitPin));
+  delay(1000);
 }
