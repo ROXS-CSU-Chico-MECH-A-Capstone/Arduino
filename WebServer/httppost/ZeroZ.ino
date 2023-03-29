@@ -6,7 +6,7 @@ float zeroZ(float zCurrent)
 
   int delay = 4000;      // fast movement delay (12.5mm/s)
   int slowDelay = 12000; // slow movement delay (4.17mm/s)
-  int offset = 4 * 100;  // vertical offset distance (4mm)
+  int offset = 1 * 100;  // vertical offset distance (40mm)
   
   // read input pin values
   int limit = digitalRead(limitPin);
@@ -16,6 +16,8 @@ float zeroZ(float zCurrent)
     zCurrent = stepMotor(0, delay, zCurrent);
   
     limit = digitalRead(limitPin);
+    Serial.println("limit");
+    Serial.println(limit);
   }
 
   delayMicroseconds(250);
@@ -32,6 +34,8 @@ float zeroZ(float zCurrent)
     zCurrent = stepMotor(0, slowDelay, zCurrent);
   
     limit = digitalRead(limitPin);
+    Serial.println("limit");
+    Serial.println(limit);
   }
   
   zCurrent = 0;

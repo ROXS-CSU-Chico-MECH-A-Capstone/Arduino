@@ -17,7 +17,7 @@ float moveZ(float gotoZ, float speed, float zCurrent){
       
       Serial.print(dir);
     }   
-    for (float i = 0; i < disp; i=i+0.1) { 
+    for (float i = 0; i < disp; i=i+0.04) { 
 
     //while(gotoZ != zCurrent){
       zCurrent=stepMotor(dir, delay, zCurrent);

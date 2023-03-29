@@ -2,18 +2,16 @@
 float stepMotor(int direction, float delay, float zCurrent) {
   // direction = 0 or 1
   // delay determines speed
-  Serial.println(analogRead(PR));
-  
   // set direction of motor
   if (direction == 0) {
     digitalWrite(dirPin, LOW);
     Serial.println(" - ");
-    zCurrent -= 0.1; // mm
+    zCurrent -= 0.04; // mm
   }
   else {
     digitalWrite(dirPin, HIGH);
     Serial.println(" + ");
-    zCurrent += 0.1; // mm
+    zCurrent += 0.04; // mm
   }
    
   // step motor once

@@ -40,7 +40,7 @@ import json
 
 url = "http://192.168.0.99/values"# Replace with the actual IP address of your ESP8266 module
 
-payload = {"speed":25,"goalpos":130}
+payload = {"speed":25,"goalpos":20}
 headers = {"Content-Type": "application/json"}
 
 response = requests.patch(url, data=json.dumps(payload), headers=headers)
@@ -59,7 +59,7 @@ else:
 
     url = "http://192.168.0.99/values"# Replace with the actual IP address of your ESP8266 module
 
-    payload = {"ledStatus": False} #use True or False
+    payload = {"ledStatus": True} #use True or False
     headers = {"Content-Type": "application/json"}
 
     response = requests.patch(url, data=json.dumps(payload), headers=headers)
