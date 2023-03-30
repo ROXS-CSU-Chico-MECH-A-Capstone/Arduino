@@ -14,12 +14,14 @@ void moveZ();
 float zeroZ();
 float stepMotor();
 bool ledToggle();
+bool motorToggle();
 //void handleGetPR();
 
 
 // Initial constant paramters
-float zCurrent = 0;   // in mm
+float zCurrent = 0;     // in mm
 bool ledStatus = false; // false = off, true = on
+bool motorStatus = true;  // true = on, false = off
 int speed = 0;
 int goalpos = 0;
 int zero = 0;
@@ -28,8 +30,9 @@ int zero = 0;
 
 const int stepPin = 13;     // to step pin on motor driver
 const int dirPin = 12;      // to direction pin on motor driver
-const int limitPin = 5;   // from limit switch input
-const int ledPin = 4;     // to relay for LED
+const int limitPin = 5;     // from limit switch input
+const int ledPin = 4;       // to relay for LED
+const int motorOn = 14;     // enable stepper motor 
 
 const int PR = A0;   // from photoresistor circuit
 
@@ -80,7 +83,10 @@ void handlePatch() {
     zero = jsonDoc["zero"];
     zCurrent=zeroZ(zCurrent);
   }
-
+  
+  if (jsonDoc.containsKey("motorStatus")) {
+    motorStatus = motorToggle(motorStatus);
+  }
   
   server.send(204);
 }
@@ -91,6 +97,9 @@ void setup() {
   pinMode(dirPin, OUTPUT);
   pinMode(ledPin, OUTPUT);
   pinMode(limitPin, INPUT);
+  pinMode(motorOn, OUTPUT);
+
+  digitalWrite(motorOn, HIGH);
   
   Serial.begin(115200);
   WiFi.begin(ssid, password);
