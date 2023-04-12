@@ -4,7 +4,7 @@ float zeroZ(float zCurrent)
   // report zeroing routine to serial
   Serial.println("Running Zeroing Routine...");
 
-  int delay = 4000;      // fast movement delay (12.5mm/s)
+  int delay = 500;      // fast movement delay (12.5mm/s)
   int slowDelay = 12000; // slow movement delay (4.17mm/s)
   int offset = 1 * 100;  // vertical offset distance (40mm)
   
@@ -16,7 +16,7 @@ float zeroZ(float zCurrent)
     zCurrent = stepMotor(0, delay, zCurrent);
   
     limit = digitalRead(limitPin);
-    Serial.println("limit");
+    Serial.println("Running Zero");
     Serial.println(limit);
   }
 
@@ -34,7 +34,7 @@ float zeroZ(float zCurrent)
     zCurrent = stepMotor(0, slowDelay, zCurrent);
   
     limit = digitalRead(limitPin);
-    Serial.println("limit");
+    Serial.println("Running Zero");
     Serial.println(limit);
   }
   

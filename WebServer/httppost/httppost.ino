@@ -21,15 +21,25 @@ bool ledToggle();
 float zCurrent = 0;   // in mm
 bool ledStatus = false; // false = off, true = on
 int speed = 0;
-int goalpos = 0;
+float goalpos = 0;
+float goalposLED = 0; //distance from LED emiter to zero of the gantry in mm
 int zero = 0;
+float LEDZeroOffset = 563.0; //distance from LED emiter to zero of the gantry in mm
+float GRange =463.001;
 
 // Define pinouts for digital in/out & analog read
 
-const int stepPin = 13;     // to step pin on motor driver
-const int dirPin = 12;      // to direction pin on motor driver
-const int limitPin = 5;   // from limit switch input
-const int ledPin = 4;     // to relay for LED
+//const int stepPin = 13;     // to step pin on motor driver
+//const int dirPin = 12;      // to direction pin on motor driver
+//const int limitPin = 5;   // from limit switch input
+//const int ledPin = 4;     // to relay for LED
+
+
+const int stepPin = 5;     // to step pin on motor driver
+const int dirPin = 4;      // to direction pin on motor driver
+const int limitPin = 13;   // from limit switch input
+const int enable = 14;   //
+const int ledPin = 12;     // to relay for LED
 
 const int PR = A0;   // from photoresistor circuit
 
@@ -43,6 +53,8 @@ void handleGet() {
   jsonDoc["speed"] = speed;
   jsonDoc["goalpos"] = goalpos;
   jsonDoc["zCurrent"] = zCurrent;
+  jsonDoc["zCurrentLED"] = zCurrent;
+  jsonDoc["goalposLED"] = goalposLED;
   jsonDoc["PRInt"] = analogRead(PR);
   jsonDoc["ledStatus"] = ledStatus;
   jsonDoc["zero"] = zero;
@@ -65,12 +77,35 @@ void handlePatch() {
     speed = jsonDoc["speed"];
   }
   
-  if (jsonDoc.containsKey("goalpos")) {
+  if (jsonDoc.containsKey("goalpos")) {//Move command with zero as datum
     goalpos = jsonDoc["goalpos"];
     //
-    zCurrent=moveZ(goalpos,speed,zCurrent);
-  }
+    if (goalpos < GRange){
+      zCurrent=moveZ(goalpos,speed,zCurrent);
+    } else{
+    Serial.print("Attempted Goal Position of");
+    Serial.print(goalpos);
+    Serial.print("Exceeds Gantry Range of");
+    Serial.print(GRange);
+    Serial.println("");
+  }}
   
+  if (jsonDoc.containsKey("goalposLED")) {//Move command with emitter as datum
+    goalposLED = jsonDoc["goalposLED"];
+    //goal position in positive offset from LED
+
+    goalpos=LEDZeroOffset-goalposLED;
+    
+    if (goalpos < GRange){
+      zCurrent=moveZ(goalpos,speed,zCurrent);
+    }   
+      else{
+    Serial.print("Attempted Goal Position of");
+    Serial.print(goalpos);
+    Serial.print("Exceeds Gantry Range of");
+    Serial.print(GRange);
+    Serial.println("");
+  }}
     if (jsonDoc.containsKey("ledStatus")) {
     ledStatus = jsonDoc["ledStatus"];
     ledStatus=ledToggle(ledStatus);
@@ -115,5 +150,5 @@ void setup() {
 
 void loop() {
   server.handleClient();
-
+ 
 }

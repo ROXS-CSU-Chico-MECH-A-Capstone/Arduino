@@ -18,7 +18,7 @@ from scipy.signal import find_peaks, peak_prominences, savgol_filter
 from scipy.stats import linregress    
 import requests 
 import json
-
+import time
 
 
 class Spiral:
@@ -53,7 +53,7 @@ class Webserver:
 
         response = requests.patch(url, data=json.dumps(payload), headers=headers) #patch in or change the value
 
-        if response.status_code == 200: #if 204 which is http good patch
+        if response.status_code == 204: #if 204 which is http good patch
             print(obj + " Updated successfully")
         else:
             print(obj + " Error: ", response.status_code)
@@ -78,20 +78,25 @@ class Webserver:
 IP="192.168.0.99"
 ext="values"
 ESP=Webserver(IP,ext)
-#%%
+#%% 0 
 ESP.get("zCurrent")
 #%%
 ESP.patch("speed","100")
 
 z=ESP.get("zCurrent")
-ESP.patch("goalpos",100)
+ESP.patch("goalpos",z+30)
 #%%
-ESP.get("PRInt")  
+ESP.patch("speed","100")
+ESP.patch("goalposLED",350)
+#%%
+while True:
+    ESP.get("PRInt")  
+    time.sleep(1)
 #%%
 ESP.patch("ledStatus",True)
-#%%
-ESP.patch("ledStatus",False)
-#%%
-ESP.patch("zero",1) 
+#%% 
+ESP.patch("ledStatus",False) 
+#%% 
+ESP.patch("zero",1)  
 #%%
 ESP.get("zCurrent")
